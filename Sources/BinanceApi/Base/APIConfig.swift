@@ -49,7 +49,7 @@ public class APIConfig {
     }
     
     public let spot = URLGroup(httpBaseURL: "https://api.binance.com",
-                                      wsBaseURL: "wss://stream.binance.com:9443/ws")
+                                      wsBaseURL: "wss://stream.binance.com:443/ws")
     public let feature = URLGroup(httpBaseURL: "https://fapi.binance.com",
                                          wsBaseURL: "wss://fstream.binance.com/ws")
 }

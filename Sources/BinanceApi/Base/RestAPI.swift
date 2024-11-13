@@ -18,7 +18,7 @@ public struct RestAPI {
     @discardableResult
     public static func post(path: String,
                             params: Any? = nil,
-                            dataKey: String = "data",
+                            dataKey: String? = nil,
                             dataClass: Decodable.Type? = nil,
                             printLog: Bool = false) async throws -> BAResponse {
         let res = try await send(path: path,
@@ -58,7 +58,7 @@ public struct RestAPI {
     public static func send(path: String,
                             params: Any? = nil,
                             method: HTTPMethod = .GET,
-                            dataKey: String = "data",
+                            dataKey: String? = nil,
                             dataClass: Decodable.Type? = nil,
                             printLog: Bool = false) async throws -> BAResponse {
         var newMethod = method
@@ -120,10 +120,7 @@ public struct RestAPI {
         headerFields["X-MBX-APIKEY"] = try APIConfig.shared.requireApiKey()
         headerFields["Accept"] = "application/json"
         
-        var decodeConfig: DecodeConfig?
-        if let dataClass {
-            decodeConfig = DecodeConfig(dataKey: dataKey, modelType: dataClass)
-        }
+        let decodeConfig = DecodeConfig(dataKey: dataKey, modelType: dataClass)
         
         let req = Request(path: urlStr,
                           method: newMethod,
