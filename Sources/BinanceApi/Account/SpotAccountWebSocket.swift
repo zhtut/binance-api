@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import URLWebSocket
+import CombineWebSocket
 import UtilCore
 #if canImport(CombineX)
 import CombineX

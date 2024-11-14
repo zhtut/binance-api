@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import URLWebSocket
+import CombineWebSocket
 import UtilCore
 #if canImport(CombineX)
 import CombineX
@@ -78,8 +78,10 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     }
     
     open func reOpen() {
-        ws.close()
-        open()
+        Task {
+            try await ws.close()
+            open()
+        }
     }
     
     open func open() {
