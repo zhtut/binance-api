@@ -27,11 +27,6 @@ open class FeatureBalanceManager: NSObject, @unchecked Sendable {
     
     public override init() {
         super.init()
-        let timer = Timer(timeInterval: 3, repeats: true) { timer in
-            self.refresh()
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        RunLoop.main.run()
     }
     
     open func updateWith(_ update: FeatureAccountUpdate) {
@@ -83,6 +78,7 @@ open class FeatureBalanceManager: NSObject, @unchecked Sendable {
             let res = try await RestAPI.post(path: path, dataClass: [FeatureBalance].self)
             if let arr = res.data as? [FeatureBalance] {
                 balances = arr
+                log()
             }
         }
     }

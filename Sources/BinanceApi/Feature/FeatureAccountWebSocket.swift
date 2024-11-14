@@ -39,8 +39,19 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
         open()
         
         // 先请求到订单和账户数据
-        BalanceManager.shared.refresh()
-        OrderManager.shared.refresh()
+        refresh()
+        
+        // 再起个定时器，定时拉取最新的订单和资产
+        let timer = Timer(timeInterval: 10, repeats: true) { timer in
+            self.refresh()
+        }
+        RunLoop.current.add(timer, forMode: .common)
+        RunLoop.current.run()
+    }
+    
+    func refresh() {
+        FeatureOrderManager.shared.refresh()
+        FeatureBalanceManager.shared.refresh()
     }
     
     /// 处理数据
@@ -53,6 +64,9 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
                     case FeatureAccountUpdate.key:
                         let update = try JSONDecoder().decode(FeatureAccountUpdate.self, from: data)
                         didReceiveAccountUpdate(update)
+                    case FeatureTradeOrderUpdate.key:
+                        let update = try JSONDecoder().decode(FeatureTradeOrderUpdate.self, from: data)
+                        didReceiveOrderUpdate(update)
                     case "listenKeyExpired":
                         reOpen()
                     default:
@@ -73,8 +87,8 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     
     /// Payload: 订单更新
     /// 订单通过executionReport事件进行更新。
-    open func didReceiveOrderUpdate(_ report: ExecutionReport) {
-        OrderManager.shared.updateWith(report)
+    open func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) {
+        FeatureOrderManager.shared.updateWith(report)
     }
     
     open func reOpen() {

@@ -120,7 +120,10 @@ public struct RestAPI {
         headerFields["X-MBX-APIKEY"] = try APIConfig.shared.requireApiKey()
         headerFields["Accept"] = "application/json"
         
-        let decodeConfig = DecodeConfig(dataKey: dataKey, modelType: dataClass)
+        var decodeConfig: DecodeConfig?
+        if dataKey != nil || dataClass != nil {
+            decodeConfig = DecodeConfig(dataKey: dataKey, modelType: dataClass)
+        }
         
         let req = Request(path: urlStr,
                           method: newMethod,

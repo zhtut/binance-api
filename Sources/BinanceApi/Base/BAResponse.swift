@@ -27,7 +27,7 @@ public struct BAResponse {
 
     public var code: Int?
     public var data: Any? {
-        if let _ = res.request.decodeConfig?.dataKey {
+        if let _ = res.request.decodeConfig {
            return res.model
         } else {
             return res.bodyJson
