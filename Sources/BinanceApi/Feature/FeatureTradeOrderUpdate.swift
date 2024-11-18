@@ -14,10 +14,10 @@ public struct FeatureTradeOrderUpdate: Codable {
     
     /// 事件类型
     public let e: String
-    /// 事件时间
-    public let E: Int
     /// 撮合时间
     public let T: Int
+    /// 事件时间
+    public let E: Int
     /// 包含订单详细信息的内部结构体
     public let o: OrderDetails
     
@@ -77,18 +77,18 @@ public struct FeatureTradeOrderUpdate: Codable {
         public let ps: String
         /// 是否为触发平仓单; 仅在条件订单情况下会推送此字段
         public let cp: Bool?
-        /// 追踪止损激活价格, 仅在追踪止损单时会推送此字段
-        public let AP: String?
-        /// 追踪止损回调比例, 仅在追踪止损单时会推送此字段
-        public let cr: String?
+        /// 该交易实现盈亏
+        public let rp: String?
         /// 是否开启条件单触发保护
         public let pP: Bool?
+        /// 追踪止损回调比例, 仅在追踪止损单时会推送此字段
+        public let cr: String?
+        /// 追踪止损激活价格, 仅在追踪止损单时会推送此字段
+        public let AP: String?
         /// 忽略（此处暂未明确用途，按照接口文档原样保留属性名）
         public let si: Int?
         /// 忽略（此处暂未明确用途，按照接口文档原样保留属性名）
         public let ss: Int?
-        /// 该交易实现盈亏
-        public let rp: String?
         /// 自成交防止模式
         public let V: String?
         /// 价格匹配模式

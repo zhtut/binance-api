@@ -16,20 +16,20 @@ public struct FeatureAccountUpdate: Codable {
     public static let key = "ACCOUNT_UPDATE"
     
     public var e: String // ": "balanceUpdate",         //Event Type
-    public var E: Int // ": 1573200697110,           //Event Time
     public var T: Int // ": 1573200697068            //Clear Time
-    public var d: String // ": "100.00000000",          //Balance Delta
+    public var E: Int // ": 1573200697110,           //Event Time
     public var a: FeatureAccountUpdate.Account // ": "ABC",                   //Asset
     
     public struct Account: Codable {
-        /// "m":"ORDER",                        // 事件推出原因
-        public var m: String
         
         /// 余额信息
         public var B: [FeatureAccountUpdate.Balance]
         
         /// 持仓
         public var P: [FeatureAccountUpdate.Position]
+        
+        /// "m":"ORDER",                        // 事件推出原因
+        public var m: String
     }
     
     public struct Balance: Codable {
@@ -50,8 +50,6 @@ public struct FeatureAccountUpdate: Codable {
         public var pa: String
         /// "ep":"0.00000",            // 入仓价格
         public var ep: String
-        /// "bep":"0",                // 盈亏平衡价
-        public var bep: String
         /// "cr":"200",                 // (费前)累计实现损益
         public var cr: String
         /// "up":"0",                        // 持仓未实现盈亏
@@ -62,5 +60,9 @@ public struct FeatureAccountUpdate: Codable {
         public var iw: String
         /// "ps":"BOTH"                    // 持仓方向
         public var ps: String
+        /// "ma": "USDT",
+        public var ma: String
+        /// "bep":"0",                // 盈亏平衡价
+        public var bep: String
     }
 }

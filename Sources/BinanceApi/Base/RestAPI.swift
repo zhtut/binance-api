@@ -13,6 +13,7 @@ public struct RestAPI {
     
     public struct APIError: Error {
         var msg: String?
+        var code: Int?
     }
     
     @discardableResult
@@ -30,7 +31,7 @@ public struct RestAPI {
         if res.succeed {
             return res
         } else {
-            throw APIError(msg: res.msg)
+            throw APIError(msg: res.msg, code: res.code)
         }
     }
     

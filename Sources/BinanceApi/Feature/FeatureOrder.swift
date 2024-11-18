@@ -103,4 +103,11 @@ public struct FeatureOrder: Codable {
         let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
         try await RestAPI.post(path: path, params: params)
     }
+    
+    /// 取消所有订单
+    public static func cancelAllOrders(symbol: String) async throws -> BAResponse {
+        let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
+        let params = ["symbol": symbol]
+        return try await RestAPI.send(path: path, params: params)
+    }
 }

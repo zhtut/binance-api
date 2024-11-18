@@ -51,7 +51,7 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     
     func refresh() {
         FeatureOrderManager.shared.refresh()
-        FeatureBalanceManager.shared.refresh()
+        FeatureAccountManager.shared.refresh()
     }
     
     /// 处理数据
@@ -82,7 +82,7 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     /// Payload: 账户更新
     /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
     open func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) {
-        FeatureBalanceManager.shared.updateWith(update)
+        FeatureAccountManager.shared.updateWith(update)
     }
     
     /// Payload: 订单更新
@@ -124,3 +124,23 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
         throw CommonError(message: "解析body错误")
     }
 }
+
+// 开仓
+//Websocket-->:收到string:{"e":"TRADE_LITE","E":1731954087444,"T":1731954087444,"s":"BTCUSDT","q":"0.002","p":"91739.90","m":false,"c":"android_MLA5BSDBdSD12WPlEyMh","S":"BUY","L":"91739.90","l":"0.002","t":5612428004,"i":482255808281}
+//当前订单数量：1
+//Websocket-->:收到string:{"e":"ORDER_TRADE_UPDATE","T":1731954087444,"E":1731954087444,"o":{"s":"BTCUSDT","c":"android_MLA5BSDBdSD12WPlEyMh","S":"BUY","o":"LIMIT","f":"GTC","q":"0.002","p":"91739.90","ap":"0","sp":"0","x":"NEW","X":"NEW","i":482255808281,"l":"0","z":"0","L":"0","n":"0","N":"USDT","T":1731954087444,"t":0,"b":"183.66307","a":"0","m":false,"R":false,"wt":"CONTRACT_PRICE","ot":"LIMIT","ps":"BOTH","cp":false,"rp":"0","pP":false,"si":0,"ss":0,"V":"NONE","pm":"OPPONENT","gtd":0}}
+//处理数据错误：keyNotFound(CodingKeys(stringValue: "d", intValue: nil), Swift.DecodingError.Context(codingPath: [], debugDescription: "No value associated with key CodingKeys(stringValue: \"d\", intValue: nil) (\"d\").", underlyingError: nil))
+//Websocket-->:收到string:{"e":"ACCOUNT_UPDATE","T":1731954087444,"E":1731954087444,"a":{"B":[{"a":"USDT","wb":"642.76097079","cw":"642.76097079","bc":"0"}],"P":[{"s":"BTCUSDT","pa":"0.002","ep":"91739.9","cr":"0","up":"-0.03508665","mt":"cross","iw":"0","ps":"BOTH","ma":"USDT","bep":"91785.76995"}],"m":"ORDER"}}
+//当前订单数量：0
+//Websocket-->:收到string:{"e":"ORDER_TRADE_UPDATE","T":1731954087444,"E":1731954087444,"o":{"s":"BTCUSDT","c":"android_MLA5BSDBdSD12WPlEyMh","S":"BUY","o":"LIMIT","f":"GTC","q":"0.002","p":"91739.90","ap":"91739.90000","sp":"0","x":"TRADE","X":"FILLED","i":482255808281,"l":"0.002","z":"0.002","L":"91739.90","n":"0.09173990","N":"USDT","T":1731954087444,"t":5612428004,"b":"0","a":"0","m":false,"R":false,"wt":"CONTRACT_PRICE","ot":"LIMIT","ps":"BOTH","cp":false,"rp":"0","pP":false,"si":0,"ss":0,"V":"NONE","pm":"OPPONENT","gtd":0}}
+
+// 平仓
+//Websocket-->:收到string:{"e":"TRADE_LITE","E":1731955175166,"T":1731955175166,"s":"BTCUSDT","q":"0.002","p":"0.00","m":false,"c":"android_WrDCjqlzTWlU9FGcNp1Q","S":"SELL","L":"90853.20","l":"0.002","t":5612520599,"i":482277363667}
+//当前订单数量：1
+//Websocket-->:收到string:{"e":"ORDER_TRADE_UPDATE","T":1731955175166,"E":1731955175166,"o":{"s":"BTCUSDT","c":"android_WrDCjqlzTWlU9FGcNp1Q","S":"SELL","o":"MARKET","f":"GTC","q":"0.002","p":"0","ap":"0","sp":"0","x":"NEW","X":"NEW","i":482277363667,"l":"0","z":"0","L":"0","n":"0","N":"USDT","T":1731955175166,"t":0,"b":"0","a":"0","m":false,"R":true,"wt":"CONTRACT_PRICE","ot":"MARKET","ps":"BOTH","cp":false,"rp":"0","pP":false,"si":0,"ss":0,"V":"NONE","pm":"NONE","gtd":0}}
+//当前资产：
+//USDT，总额：640.89671759，可用：631.88167158
+//当前无持仓
+//Websocket-->:收到string:{"e":"ACCOUNT_UPDATE","T":1731955175166,"E":1731955175166,"a":{"B":[{"a":"USDT","wb":"640.89671759","cw":"640.89671759","bc":"0"}],"P":[{"s":"BTCUSDT","pa":"0","ep":"0","cr":"-1.77340000","up":"0","mt":"cross","iw":"0","ps":"BOTH","ma":"USDT","bep":"0"}],"m":"ORDER"}}
+//当前订单数量：0
+//Websocket-->:收到string:{"e":"ORDER_TRADE_UPDATE","T":1731955175166,"E":1731955175166,"o":{"s":"BTCUSDT","c":"android_WrDCjqlzTWlU9FGcNp1Q","S":"SELL","o":"MARKET","f":"GTC","q":"0.002","p":"0","ap":"90853.20000","sp":"0","x":"TRADE","X":"FILLED","i":482277363667,"l":"0.002","z":"0.002","L":"90853.20","n":"0.09085320","N":"USDT","T":1731955175166,"t":5612520599,"b":"0","a":"0","m":false,"R":true,"wt":"CONTRACT_PRICE","ot":"MARKET","ps":"BOTH","cp":false,"rp":"-1.77340000","pP":false,"si":0,"ss":0,"V":"NONE","pm":"NONE","gtd":0}}
