@@ -33,6 +33,33 @@ open class FeaturePostOrderManager: CombineBase {
         super.init()
     }
     
+    /// 冻结在订单中的合约张数
+    open class var orderPosSz: Decimal {
+        let orders = FeatureOrderManager.shared.orders
+        if orders.count > 0 {
+            var count = Decimal(0.0)
+            for or in orders {
+                if let pos = or.origQty.decimalValue {
+                    count += pos
+                }
+            }
+            return count
+        }
+        return 0
+    }
+    
+    /// 持仓总张数
+    open class var posSz: Decimal {
+        let positions = FeatureAccountManager.shared.positions
+        var count: Decimal = 0.0
+        for po in positions {
+            if let pos = po.positionAmt.decimalValue {
+                count += pos
+            }
+        }
+        return count
+    }
+    
     /*
      GTC - Good Till Cancel 成交为止
      IOC - Immediate or Cancel 无法立即成交(吃单)的部分就撤销
