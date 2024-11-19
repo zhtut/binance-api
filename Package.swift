@@ -7,10 +7,10 @@ var pDependencies = [PackageDescription.Package.Dependency]()
 var tDependencies = [PackageDescription.Target.Dependency]()
 
 pDependencies += [
-    //        .package(url: "https://github.com/zhtut/async-networking.git", branch: "main"),
-    .package(path: "../async-networking"),
-//    .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
-    .package(path: "../combine-websocket"),
+            .package(url: "https://github.com/zhtut/async-networking.git", branch: "main"),
+//    .package(path: "../async-networking"),
+    .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
+//    .package(path: "../combine-websocket"),
     .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
     .package(url: "https://github.com/zhtut/UtilCore.git", branch: "main"),
 ]
