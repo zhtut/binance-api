@@ -11,82 +11,82 @@ import Foundation
 public struct FeatureOrder: Codable {
     
     /// 平均成交价
-    var avgPrice: String
+    public var avgPrice: String
     
     /// 用户自定义的订单号
-    var clientOrderId: String
+    public var clientOrderId: String
     
     /// 成交金额
-    var cumQuote: String
+    public var cumQuote: String
     
     /// 成交量
-    var executedQty: String
+    public var executedQty: String
     
     /// 系统订单号
-    var orderId: Int
+    public var orderId: Int
     
     /// 原始委托数量
-    var origQty: String
+    public var origQty: String
     
     /// 触发前订单类型
-    var origType: String
+    public var origType: String
     
     /// 委托价格
-    var price: String
+    public var price: String
     
     /// 是否仅减仓
-    var reduceOnly: Bool
+    public var reduceOnly: Bool
     
     /// 买卖方向
-    var side: Side
+    public var side: Side
     
     /// 持仓方向
-    var positionSide: String?
+    public var positionSide: String?
     
     /// 订单状态
-    var status: Status
+    public var status: Status
     
     /// 触发价，对`TRAILING_STOP_MARKET`无效
-    var stopPrice: String
+    public var stopPrice: String
     
     /// 是否条件全平仓
-    var closePosition: Bool?
+    public var closePosition: Bool?
     
     /// 交易对
-    var symbol: String
+    public var symbol: String
     
     /// 订单时间
-    var time: Int
+    public var time: Int
     
     /// 有效方法
-    var timeInForce: String?
+    public var timeInForce: String?
     
     /// 订单类型
-    var type: String
+    public var type: String
     
     /// 跟踪止损激活价格, 仅`TRAILING_STOP_MARKET` 订单返回此字段
-    var activatePrice: String?
+    public var activatePrice: String?
     
     /// 跟踪止损回调比例, 仅`TRAILING_STOP_MARKET` 订单返回此字段
-    var priceRate: String?
+    public var priceRate: String?
     
     /// 更新时间
-    var updateTime: Int
+    public var updateTime: Int
     
     /// 条件价格触发类型
-    var workingType: String
+    public var workingType: String
     
     /// 是否开启条件单触发保护
-    var priceProtect: Bool?
+    public var priceProtect: Bool?
     
     /// 盘口价格下单模式
-    var priceMatch: String?
+    public var priceMatch: String?
     
     /// 订单自成交保护模式
-    var selfTradePreventionMode: String?
+    public var selfTradePreventionMode: String?
     
     /// 订单TIF为GTD时的自动取消时间
-    var goodTillDate: Int?
+    public var goodTillDate: Int?
     
     /// 是否还在等待成交中
     public var isWaitingFill: Bool {
