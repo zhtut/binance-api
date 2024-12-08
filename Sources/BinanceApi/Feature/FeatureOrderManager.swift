@@ -18,7 +18,7 @@ open class FeatureOrderManager: NSObject, @unchecked Sendable {
         super.init()
     }
     
-    open func updateWith(_ report: FeatureTradeOrderUpdate) {
+    open func updateWith(_ report: FeatureTradeOrderUpdate) async {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if let or = orders.first(where: { $0.orderId == report.o.i }) {
             if or.updateTime > report.E {

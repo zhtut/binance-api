@@ -57,16 +57,16 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     /// 处理数据
     /// - Parameter data: 收到的数据
     open func processData(_ data: Data) {
-        do {
+        Task {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
                     switch e {
                     case FeatureAccountUpdate.key:
                         let update = try JSONDecoder().decode(FeatureAccountUpdate.self, from: data)
-                        didReceiveAccountUpdate(update)
+                        await didReceiveAccountUpdate(update)
                     case FeatureTradeOrderUpdate.key:
                         let update = try JSONDecoder().decode(FeatureTradeOrderUpdate.self, from: data)
-                        didReceiveOrderUpdate(update)
+                        await didReceiveOrderUpdate(update)
                     case "listenKeyExpired":
                         reOpen()
                     default:
@@ -74,21 +74,19 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
                     }
                 }
             }
-        } catch {
-            print("处理数据错误：\(error)")
         }
     }
     
     /// Payload: 账户更新
     /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
-    open func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) {
-        FeatureAccountManager.shared.updateWith(update)
+    open func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) async {
+        await FeatureAccountManager.shared.updateWith(update)
     }
     
     /// Payload: 订单更新
     /// 订单通过executionReport事件进行更新。
-    open func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) {
-        FeatureOrderManager.shared.updateWith(report)
+    open func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) async {
+        await FeatureOrderManager.shared.updateWith(report)
     }
     
     open func reOpen() {

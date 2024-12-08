@@ -42,7 +42,7 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
         super.init()
     }
     
-    open func updateWith(_ update: FeatureAccountUpdate) {
+    open func updateWith(_ update: FeatureAccountUpdate) async {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if update.E < updatePositionTime {
             return
