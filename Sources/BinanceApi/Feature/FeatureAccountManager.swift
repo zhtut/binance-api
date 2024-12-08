@@ -22,10 +22,29 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
     /// 账户更新通知
     public var accountPublisher = PassthroughSubject<Void, Never>()
     
-    open var account: FeatureAccount?
+    private var _account = NIOLockedValueBox<FeatureAccount?>(nil)
+    
+    /// 账户对象
+    open var account: FeatureAccount? {
+        get {
+            _account.withLockedValue({ $0 })
+        }
+        set {
+            _account.withLockedValue({ $0 = newValue })
+        }
+    }
+    
+    private var _assets = NIOLockedValueBox([FeatureAccount.Asset]())
     
     /// 当前所有资产
-    open var assets = [FeatureAccount.Asset]()
+    open var assets: [FeatureAccount.Asset] {
+        get {
+            _assets.withLockedValue({ $0 })
+        }
+        set {
+            _assets.withLockedValue({ $0 = newValue })
+        }
+    }
 
     /// usdt的余额
     open var usdtBal: Decimal {
@@ -35,8 +54,17 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
         return 0.0
     }
     
+    private var _positions = NIOLockedValueBox([FeatureAccount.Position]())
+    
     /// 当前所有持仓
-    open var positions = [FeatureAccount.Position]()
+    open var positions: [FeatureAccount.Position] {
+        get {
+            _positions.withLockedValue({ $0 })
+        }
+        set {
+            _positions.withLockedValue({ $0 = newValue })
+        }
+    }
     
     public override init() {
         super.init()

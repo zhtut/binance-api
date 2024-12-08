@@ -22,8 +22,17 @@ open class FeatureBalanceManager: NSObject, @unchecked Sendable {
     /// 资产更新通知
     public var balancePublisher = PassthroughSubject<Void, Never>()
     
+    private var _balances = NIOLockedValueBox([FeatureBalance]())
+    
     /// 当前所有资产
-    open var balances = [FeatureBalance]()
+    open var balances: [FeatureBalance] {
+        get {
+            _balances.withLockedValue({ $0 })
+        }
+        set {
+            _balances.withLockedValue({ $0 = newValue })
+        }
+    }
     
     public override init() {
         super.init()

@@ -12,7 +12,16 @@ open class FeatureOrderManager: NSObject, @unchecked Sendable {
     
     public static let shared = FeatureOrderManager()
     
-    open var orders = [FeatureOrder]()
+    private var _orders = NIOLockedValueBox([FeatureOrder]())
+    
+    open var orders: [FeatureOrder] {
+        get {
+            _orders.withLockedValue({ $0 })
+        }
+        set {
+            _orders.withLockedValue({ $0 = newValue })
+        }
+    }
     
     public override init() {
         super.init()
