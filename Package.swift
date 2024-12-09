@@ -7,7 +7,7 @@ var pDependencies = [PackageDescription.Package.Dependency]()
 var tDependencies = [PackageDescription.Target.Dependency]()
 
 pDependencies += [
-            .package(url: "https://github.com/zhtut/async-networking.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/async-networking.git", branch: "main"),
 //    .package(path: "../async-networking"),
     .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
 //    .package(path: "../combine-websocket"),
