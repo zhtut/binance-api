@@ -11,6 +11,7 @@ import CombineX
 #else
 import Combine
 #endif
+import NIOLockedValue
 
 /// 资产管理，这个跟品种无关
 open class FeatureBalanceManager: NSObject, @unchecked Sendable {
@@ -22,17 +23,9 @@ open class FeatureBalanceManager: NSObject, @unchecked Sendable {
     /// 资产更新通知
     public var balancePublisher = PassthroughSubject<Void, Never>()
     
-    private var _balances = NIOLockedValueBox([FeatureBalance]())
-    
     /// 当前所有资产
-    open var balances: [FeatureBalance] {
-        get {
-            _balances.withLockedValue({ $0 })
-        }
-        set {
-            _balances.withLockedValue({ $0 = newValue })
-        }
-    }
+    @NIOLocked
+    open var balances = [FeatureBalance]()
     
     public override init() {
         super.init()

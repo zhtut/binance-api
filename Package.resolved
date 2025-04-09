@@ -1,6 +1,33 @@
 {
-  "originHash" : "badbc2e179c8348066ccb79f324fde4e180769c1d5d740f7158a1756635588c7",
+  "originHash" : "ab409b70071a0d6773a8bdc627d5b8ad9edb93d6d4e8c0ba80b5f85d893e9fdb",
   "pins" : [
+    {
+      "identity" : "async-networking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zhtut/async-networking.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "2d86939b24c1ca709a6a9833d89f6d0c89c8cb4e"
+      }
+    },
+    {
+      "identity" : "combine-websocket",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zhtut/combine-websocket.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "fa649d18aeaffcb4015a652ccc430079b07ded1b"
+      }
+    },
+    {
+      "identity" : "nio-locked-value",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zhtut/nio-locked-value.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "24d86730ce86e626d4499a15d5d7737c21fc7c9b"
+      }
+    },
     {
       "identity" : "swift-asn1",
       "kind" : "remoteSourceControl",
@@ -17,6 +44,15 @@
       "state" : {
         "revision" : "06dc63c6d8da54ee11ceb268cde1fa68161afc96",
         "version" : "3.9.1"
+      }
+    },
+    {
+      "identity" : "utilcore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zhtut/UtilCore.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8a467f3fe1cca5e0f027884f849588bdf8d0fb8e"
       }
     }
   ],

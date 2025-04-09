@@ -6,22 +6,15 @@
 //
 
 import Foundation
+import NIOLockedValue
 
 /// 订单管理器
 open class FeatureOrderManager: NSObject, @unchecked Sendable {
     
     public static let shared = FeatureOrderManager()
     
-    private var _orders = NIOLockedValueBox([FeatureOrder]())
-    
-    open var orders: [FeatureOrder] {
-        get {
-            _orders.withLockedValue({ $0 })
-        }
-        set {
-            _orders.withLockedValue({ $0 = newValue })
-        }
-    }
+    @NIOLocked
+    open var orders = [FeatureOrder]()
     
     public override init() {
         super.init()
