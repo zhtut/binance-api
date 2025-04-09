@@ -111,18 +111,18 @@ public struct FeatureOrder: Codable {
         return try await RestAPI.send(path: path, params: params)
     }
     
-    public static func batchCancel(orders: [FeatureOrder]) async throws {
+    static func batchCancel(orders: [FeatureOrder]) async throws {
         if orders.count == 0 {
             return
         }
         
         let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
-        var orderIds = [Int]()
+        var orderIds = [String: [Int]]()
         var symbol = ""
         for or in orders {
-            orderIds.append(or.orderId)
-            if symbol == "" {
-                symbol = or.symbol
+            if var ids = orderIds[or.symbol] {
+                ids.append(or.orderId)
+                orderIds[or.symbol] = ids
             }
         }
         
@@ -130,8 +130,10 @@ public struct FeatureOrder: Codable {
             return
         }
         
-        let params = ["symbol": symbol, "orderIdList": orderIds] as [String : Any]
-        try await RestAPI.send(path: path, params: params)
+        for (symbol, orderIdList) in orderIds {
+            let params = ["symbol": symbol, "orderIdList": orderIdList] as [String : Any]
+            try await RestAPI.send(path: path, params: params)
+        }
     }
     
     public static func cancel(orders: [FeatureOrder], batchCount: Int = 10) async throws {

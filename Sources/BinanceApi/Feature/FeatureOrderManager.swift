@@ -47,4 +47,13 @@ open class FeatureOrderManager: NSObject, @unchecked Sendable {
             }
         }
     }
+    
+    /// 取消全部订单
+    open class func cancelAllOrders() async throws {
+        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
+        let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
+        if let arr = res.data as? [FeatureOrder] {
+            try await FeatureOrder.cancel(orders: arr)
+        }
+    }
 }

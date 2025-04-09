@@ -145,8 +145,8 @@ open class FeaturePostOrderManager: CombineBase {
         return (response.succeed, response.msg)
     }
     
-    // 一键清仓
-    open class func closePosition() async throws -> (succ: Bool, errMsg: String?) {
+    /// 一键清仓
+    open class func closePositions() async throws -> (succ: Bool, errMsg: String?) {
         let positions = FeatureAccountManager.shared.positions
         if positions.count > 0 {
             for position in positions {
@@ -164,32 +164,25 @@ open class FeaturePostOrderManager: CombineBase {
         return (false, "没有持仓，不需要清仓")
     }
     
-    
-    /// 取消所有订单
-    /// - Returns: 取消的结果
-    @discardableResult
-    open class func cancelAllOrders(symbol: String) async throws -> (succ: Bool, errMsg: String?) {
-        let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
-        let params = ["symbol": symbol]
-        let response = try await RestAPI.send(path: path, params: params)
-        return (response.succeed, response.msg)
+    /// 平掉所有持仓
+    open class func closeAllPositions() async throws {
+        let path = "GET /fapi/v3/account (HMAC SHA256)"
+        let res = try await RestAPI.post(path: path, dataClass: FeatureAccount.self)
+        if let acc = res.data as? FeatureAccount {
+            let positions = acc.positions ?? []
+            if positions.count > 0 {
+                for position in positions {
+                    if let positionAmt = position.positionAmt.decimalValue {
+                        let isBuy = position.isBuy
+                        let symbol = position.symbol
+                        let sz = dabs(positionAmt)
+                        let closeParams = orderParamsWith(instId: symbol,
+                                                          isBuy: !isBuy,
+                                                          sz: sz)
+                        try await order(params: closeParams)
+                    }
+                }
+            }
+        }
     }
-    
-//    /// 取消批量的订单，可以大于10个
-//    func cancelOrders(_ orders: [FeatureOrder]) async throws {
-//        if orders.count > 0 {
-//            var remainOrders = orders
-//            while remainOrders.count > 0 {
-//                let tenOrders = Array(remainOrders.prefix(10))
-//                let (succ, errMsg) = await FeatureOrder.cancel(orders: tenOrders)
-//                if succ {
-//                    print("取消\(tenOrders.count)个订单成功")
-//                } else {
-//                    log("取消\(tenOrders.count)个订单失败：\(errMsg ?? "")")
-//                }
-//                remainOrders = remainOrders.suffix(remainOrders.count - tenOrders.count)
-//            }
-//        }
-//    }
-//    
 }

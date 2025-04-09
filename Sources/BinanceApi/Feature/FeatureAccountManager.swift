@@ -32,9 +32,17 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
     open var assets = [FeatureAccount.Asset]()
 
     /// usdt的余额
-    open var usdtBal: Decimal {
+    open var usdtAvailable: Decimal {
         if let usdt = assets.first(where: { $0.asset == "USDT" }) {
             return usdt.availableBalance.defaultDecimal()
+        }
+        return 0.0
+    }
+    
+    /// usdt的余额
+    open var usdtBal: Decimal {
+        if let usdt = assets.first(where: { $0.asset == "USDT" }) {
+            return usdt.walletBalance.defaultDecimal()
         }
         return 0.0
     }

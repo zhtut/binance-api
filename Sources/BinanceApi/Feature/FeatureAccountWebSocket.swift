@@ -41,6 +41,13 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
         // 先请求到订单和账户数据
         refresh()
         
+        // 起定时器
+        Task {
+            startTimer()
+        }
+    }
+    
+    func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
             self.refresh()

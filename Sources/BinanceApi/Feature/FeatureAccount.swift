@@ -88,6 +88,11 @@ public struct FeatureAccount: Codable {
         public var isBuy: Bool {
             positionAmt.double ?? 0 > 0
         }
+        
+        /// 立马平仓
+        public func closePositionNow() async throws {
+            
+        }
     }
     
     public var positions: [Position]?
