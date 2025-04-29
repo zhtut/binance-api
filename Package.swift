@@ -12,7 +12,8 @@ pDependencies += [
     .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
 //    .package(path: "../combine-websocket"),
     .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
-    .package(url: "https://github.com/zhtut/UtilCore.git", branch: "main"),
+//    .package(url: "https://github.com/zhtut/UtilCore.git", branch: "main"),
+    .package(path: "../UtilCore"),
     .package(url: "https://github.com/zhtut/nio-locked-value.git", branch: "main"),
 ]
 
