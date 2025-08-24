@@ -13,7 +13,7 @@ import Foundation
 /// days -> 天    1d， 3d
 /// weeks -> 周    1w
 /// months -> 月    1M
-public enum KLineInteval: String {
+public enum KLineInteval: String, Codable, Sendable {
 
     case _1s = "1s"
     
@@ -35,6 +35,10 @@ public enum KLineInteval: String {
     
     case _1w = "1w"
     case _1M = "1M"
+    
+    public var millseconds: Int {
+        seconds * 1000
+    }
     
     public var seconds: Int {
         switch self {
