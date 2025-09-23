@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UtilCore
+import CommonUtils
 
 public let BUY = "BUY"
 public let SELL = "SELL"

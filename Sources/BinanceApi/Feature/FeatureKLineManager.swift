@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UtilCore
+import CommonUtils
 
 open class FeatureKLineManager {
     /// 请求k线

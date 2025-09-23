@@ -1,5 +1,5 @@
 import Foundation
-import UtilCore
+import CommonUtils
 
 public class Setup: @unchecked Sendable  {
 

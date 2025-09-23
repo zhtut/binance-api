@@ -7,7 +7,7 @@
 
 import Foundation
 import CombineWebSocket
-import UtilCore
+import CommonUtils
 #if canImport(CombineX)
 import CombineX
 #else

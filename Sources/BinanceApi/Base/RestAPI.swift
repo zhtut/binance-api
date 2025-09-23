@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AsyncNetworking
+import AsyncNetwork
 
 /// Binance接口请求
 public struct RestAPI {

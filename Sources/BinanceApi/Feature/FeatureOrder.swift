@@ -118,7 +118,6 @@ public struct FeatureOrder: Codable {
         
         let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
         var orderIds = [String: [Int]]()
-        var symbol = ""
         for or in orders {
             if var ids = orderIds[or.symbol] {
                 ids.append(or.orderId)

@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,21 +7,21 @@ var pDependencies = [PackageDescription.Package.Dependency]()
 var tDependencies = [PackageDescription.Target.Dependency]()
 
 pDependencies += [
-    .package(url: "https://github.com/zhtut/async-networking.git", branch: "main"),
+    .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
+    .package(url: "https://github.com/zhtut/async-network.git", branch: "main"),
 //    .package(path: "../async-networking"),
     .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
 //    .package(path: "../combine-websocket"),
-    .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
-//    .package(url: "https://github.com/zhtut/UtilCore.git", branch: "main"),
-    .package(path: "../UtilCore"),
+    .package(url: "https://github.com/zhtut/common-utils.git", branch: "main"),
+//    .package(path: "../common-utils"),
     .package(url: "https://github.com/zhtut/nio-locked-value.git", branch: "main"),
 ]
 
 tDependencies += [
-    .product(name: "AsyncNetworking", package: "async-networking"),
-    .product(name: "CombineWebSocket", package: "combine-websocket"),
     .product(name: "Crypto", package: "swift-crypto"),
-    "UtilCore",
+    .product(name: "AsyncNetwork", package: "async-network"),
+    .product(name: "CombineWebSocket", package: "combine-websocket"),
+    .product(name: "CommonUtils", package: "common-utils"),
     .product(name: "NIOLockedValue", package: "nio-locked-value"),
 ]
 
@@ -40,8 +40,10 @@ tDependencies += [
 let package = Package(
     name: "binance-api",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13)
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.

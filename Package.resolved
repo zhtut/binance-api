@@ -1,13 +1,13 @@
 {
-  "originHash" : "ab409b70071a0d6773a8bdc627d5b8ad9edb93d6d4e8c0ba80b5f85d893e9fdb",
+  "originHash" : "1fce1bb362ef2ab6eefff8807507e5406280a22b61349586f73934e7b9059cc7",
   "pins" : [
     {
-      "identity" : "async-networking",
+      "identity" : "async-network",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zhtut/async-networking.git",
+      "location" : "https://github.com/zhtut/async-network.git",
       "state" : {
         "branch" : "main",
-        "revision" : "2d86939b24c1ca709a6a9833d89f6d0c89c8cb4e"
+        "revision" : "afe9927a785ceda9c69ae5e48714ec5b4c4297ae"
       }
     },
     {
@@ -17,6 +17,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "fa649d18aeaffcb4015a652ccc430079b07ded1b"
+      }
+    },
+    {
+      "identity" : "common-utils",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zhtut/common-utils.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9e8c5151493ee7dfc0093d04efca8c8cf9a364e0"
       }
     },
     {
@@ -44,15 +53,6 @@
       "state" : {
         "revision" : "06dc63c6d8da54ee11ceb268cde1fa68161afc96",
         "version" : "3.9.1"
-      }
-    },
-    {
-      "identity" : "utilcore",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zhtut/UtilCore.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "8a467f3fe1cca5e0f027884f849588bdf8d0fb8e"
       }
     }
   ],

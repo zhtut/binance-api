@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AsyncNetworking
+import AsyncNetwork
 
 public struct BAResponse {
 

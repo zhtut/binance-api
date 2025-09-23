@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UtilCore
+import CommonUtils
 
 public struct Symbol {
     
