@@ -18,8 +18,6 @@ public struct FeatureTradeOrderUpdate: Codable {
     public let T: Int
     /// 事件时间
     public let E: Int
-    /// 包含订单详细信息的内部结构体
-    public let o: OrderDetails
     
     /// 定义内部结构体用于存放订单详细信息，遵循Codable协议
     public struct OrderDetails: Codable {
@@ -96,6 +94,9 @@ public struct FeatureTradeOrderUpdate: Codable {
         /// TIF为GTD的订单自动取消时间
         public let gtd: Int?
     }
+    
+    /// 包含订单详细信息的内部结构体
+    public let o: OrderDetails
     
     /// 创建订单
     public var createOrder: FeatureOrder {
