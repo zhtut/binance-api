@@ -8,7 +8,7 @@
 import Foundation
 
 /// 账户
-public struct FeatureAccount: Codable {
+public struct FeatureAccount: Codable, Sendable {
     /// "totalInitialMargin": "0.00000000",            // 当前所需起始保证金总额(存在逐仓请忽略), 仅计算usdt资产positions), only for USDT asset
     public var totalInitialMargin: String
     /// "totalMaintMargin": "0.00000000",                 // 维持保证金总额, 仅计算usdt资产
@@ -32,7 +32,7 @@ public struct FeatureAccount: Codable {
     /// "maxWithdrawAmount": "103.12345678"            // 最大可转出余额, 仅计算usdt资产
     public var maxWithdrawAmount: String
     
-    public struct Asset: Codable {
+    public struct Asset: Codable, Sendable {
         /// "asset": "USDT",                        // 资产
         public var asset: String
         /// "walletBalance": "23.72469206",         // 余额
@@ -63,7 +63,7 @@ public struct FeatureAccount: Codable {
     
     public var assets: [Asset]
     
-    public struct Position: Codable {
+    public struct Position: Codable, Sendable {
         /// "symbol": "BTCUSDT",               // 交易对
         public var symbol: String
         /// "positionSide": "BOTH",            // 持仓方向

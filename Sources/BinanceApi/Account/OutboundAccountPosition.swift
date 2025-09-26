@@ -9,11 +9,11 @@ import Foundation
 
 /// 账户更新收到的消息
 /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
-public struct OutboundAccountPosition: Codable {
+public struct OutboundAccountPosition: Codable, Sendable {
     
     public static let key = "outboundAccountPosition"
     
-    public struct Balance: Codable {
+    public struct Balance: Codable, Sendable {
         public var a: String // ": "ETH",                 // 资产名称
         public var f: String // ": "10000.000000",        // 可用余额
         public var l: String // ": "0.000000"             // 冻结余额

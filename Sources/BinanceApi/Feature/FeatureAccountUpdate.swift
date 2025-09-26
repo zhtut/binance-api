@@ -11,7 +11,7 @@ import Foundation
 /// 当下列情形发生时更新:
 /// - 账户发生充值或提取
 /// - 交易账户之间发生划转(例如 现货向杠杆账户划转)
-public struct FeatureAccountUpdate: Codable {
+public struct FeatureAccountUpdate: Codable, Sendable {
     
     public static let key = "ACCOUNT_UPDATE"
     
@@ -20,7 +20,7 @@ public struct FeatureAccountUpdate: Codable {
     public var E: Int // ": 1573200697110,           //Event Time
     public var a: FeatureAccountUpdate.Account // ": "ABC",                   //Asset
     
-    public struct Account: Codable {
+    public struct Account: Codable, Sendable {
         
         /// 余额信息
         public var B: [FeatureAccountUpdate.Balance]
@@ -32,7 +32,7 @@ public struct FeatureAccountUpdate: Codable {
         public var m: String
     }
     
-    public struct Balance: Codable {
+    public struct Balance: Codable, Sendable {
         /// "a":"USDT",                   // 资产名称
         public var a: String
         /// "wb":"122624.12345678",        // 钱包余额
@@ -43,7 +43,7 @@ public struct FeatureAccountUpdate: Codable {
         public var bc: String
     }
     
-    public struct Position: Codable {
+    public struct Position: Codable, Sendable {
         /// "s":"BTCUSDT",              // 交易对
         public var s: String
         /// "pa":"0",                   // 仓位

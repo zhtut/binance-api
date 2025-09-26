@@ -31,7 +31,7 @@ import Foundation
 /// B    Last Prevented Quantity    "B":"3.000000"
 /// u    Trade Group Id    "u":1
 /// U    Counter Order Id    "U":37
-public struct ExecutionReport: Codable {
+public struct ExecutionReport: Codable, Sendable {
     
     public static let key = "executionReport"
     

@@ -7,20 +7,23 @@
 
 import Foundation
 import NIOLockedValue
+#if canImport(CombineX)
+import CombineX
+#else
+import Combine
+#endif
 
 /// 订单管理器
-open class FeatureOrderManager: NSObject, @unchecked Sendable {
+public actor FeatureOrderManager {
     
     public static let shared = FeatureOrderManager()
     
-    @NIOLocked
-    open var orders = [FeatureOrder]()
+    @Published
+    public var orders = [FeatureOrder]()
     
-    public override init() {
-        super.init()
-    }
+    public var orderPublisher = PassthroughSubject<FeatureOrder, Never>()
     
-    open func updateWith(_ report: FeatureTradeOrderUpdate) async {
+    public func updateWith(_ report: FeatureTradeOrderUpdate) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if let or = orders.first(where: { $0.orderId == report.o.i }) {
             if or.updateTime > report.E {
@@ -29,28 +32,37 @@ open class FeatureOrderManager: NSObject, @unchecked Sendable {
         }
         
         orders.removeAll(where: { $0.orderId == report.o.i })
+        
+        let changedOrder = report.createOrder
+        
         if report.o.X == .NEW || report.o.X == .PARTIALLY_FILLED {
-            orders.append(report.createOrder)
+            orders.append(changedOrder)
         }
         
         print("当前订单数量：\(orders.count)")
+        
+        orderPublisher.send(changedOrder)
     }
     
     /// 刷新全部订单
-    open func refresh() {
-        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
+    public func refresh() {
         Task {
-            let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
-            if let arr = res.data as? [FeatureOrder] {
-                orders = arr
-                print("当前订单数量：\(orders.count)")
+            do {
+                let path = "GET /fapi/v1/publicOrders (HMAC SHA256)"
+                let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
+                if let arr = res.data as? [FeatureOrder] {
+                    orders = arr
+                    print("当前订单数量：\(orders.count)")
+                }
+            } catch {
+                print("请求订单信息失败：\(error)")
             }
         }
     }
     
     /// 取消全部订单
-    open class func cancelAllOrders() async throws {
-        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
+    public static func cancelAllOrders() async throws {
+        let path = "GET /fapi/v1/publicOrders (HMAC SHA256)"
         let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
         if let arr = res.data as? [FeatureOrder] {
             try await FeatureOrder.cancel(orders: arr)

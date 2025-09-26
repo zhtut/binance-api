@@ -11,7 +11,7 @@ import Foundation
 /// 当下列情形发生时更新:
 /// - 账户发生充值或提取
 /// - 交易账户之间发生划转(例如 现货向杠杆账户划转)
-public struct BalanceUpdate: Codable {
+public struct BalanceUpdate: Codable, Sendable {
     
     public static let key = "balanceUpdate"
     

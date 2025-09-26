@@ -8,7 +8,7 @@
 import Foundation
 
 /// 订单对象
-public struct FeatureOrder: Codable {
+public struct FeatureOrder: Codable, Sendable {
     
     /// 平均成交价
     public var avgPrice: String
@@ -111,7 +111,7 @@ public struct FeatureOrder: Codable {
         return try await RestAPI.send(path: path, params: params)
     }
     
-    static func batchCancel(orders: [FeatureOrder]) async throws {
+    public static func batchCancel(orders: [FeatureOrder]) async throws {
         if orders.count == 0 {
             return
         }

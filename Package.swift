@@ -13,8 +13,10 @@ pDependencies += [
     .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
 //    .package(path: "../combine-websocket"),
     .package(url: "https://github.com/zhtut/common-utils.git", branch: "main"),
-//    .package(path: "../common-utils"),
+//    .package(path: "../../common-utils"),
     .package(url: "https://github.com/zhtut/nio-locked-value.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/default-codable.git", branch: "main"),
+//    .package(path: "../../default-codable"),
 ]
 
 tDependencies += [
@@ -23,6 +25,7 @@ tDependencies += [
     .product(name: "CombineWebSocket", package: "combine-websocket"),
     .product(name: "CommonUtils", package: "common-utils"),
     .product(name: "NIOLockedValue", package: "nio-locked-value"),
+    .product(name: "DefaultCodable", package: "default-codable"),
 ]
 
 #if os(macOS) || os(iOS)

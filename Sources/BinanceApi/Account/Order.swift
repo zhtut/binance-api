@@ -8,7 +8,7 @@
 import Foundation
 
 /// 订单状态
-public enum Status: String, Codable {
+public enum Status: String, Codable, Sendable {
     /// 新建
     case NEW
     /// 部分成交
@@ -26,7 +26,7 @@ public enum Status: String, Codable {
 }
 
 /// 买卖方向，买入还是卖出
-public enum Side: String, Codable {
+public enum Side: String, Codable, Sendable {
     /// 买入
     case BUY
     /// 卖出
@@ -34,7 +34,7 @@ public enum Side: String, Codable {
 }
 
 /// 订单对象
-public struct Order: Codable {
+public struct Order: Codable, Sendable {
     
     public var symbol: String // ": "LTCBTC",
     public var orderId: Int // ": 1,

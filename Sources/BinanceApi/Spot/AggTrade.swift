@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AggTrade: Codable {
+struct AggTrade: Codable, Sendable {
     ///    "e": "aggTrade",      // 事件类型
     var e: String
     ///    "E": 1672515782136,   // 事件时间

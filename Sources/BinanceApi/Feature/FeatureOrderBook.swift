@@ -41,6 +41,16 @@ public actor FeatureOrderBook {
     
     public var isRefreshing = false
     
+    /// 中间价
+    public var centerPrice: Double? {
+        guard let bid = bids.first?.p.double,
+              let ask = asks.last?.p.double else {
+            return nil
+        }
+        let center = (bid + ask) / 2.0
+        return center
+    }
+    
     public init(symbol: String) {
         self.symbol = symbol
     }
@@ -88,7 +98,7 @@ public actor FeatureOrderBook {
     }
     
     /// 获取简化的订单簿信息（非隔离访问）
-    public func getOrderBookSnapshot() async -> OrderBookSnapshot {
+    public func getOrderBookSnapshot() -> OrderBookSnapshot {
         return OrderBookSnapshot(
             symbol: symbol,
             bids: bids,
@@ -124,6 +134,8 @@ public actor FeatureOrderBook {
             T = message.intFor("T") ?? 0
             u = message.intFor("u") ?? 0
         }
+        
+        logOrderBook()
     }
     
     private func updateAsks(a: [[String]]) {

@@ -18,13 +18,10 @@ public class Setup: @unchecked Sendable  {
     public func loadSymbols() async throws {
         // https://api.binance.com/api/v1/exchangeInfo
         let path = "GET /api/v3/exchangeInfo"
-        let response = try await RestAPI.send(path: path, dataKey: "symbols")
-        if response.succeed {
-            guard let dicArr = response.data as? [[String: Any]] else {
-                throw CommonError(message: "exchangeInfo接口data字段返回格式有问题")
-            }
-            symbols = dicArr.map { Symbol(dic: $0) }
-            print("symbol请求成功，总共请求到\(symbols.count)个symbol")
+        let response = try await RestAPI.send(path: path, dataKey: "symbols", dataClass: [Symbol].self)
+        if response.succeed, let ss = response.res.model as? [Symbol] {
+            symbols = ss
+            print("symbol请求成功，总共请求到\(symbols.count)个现货symbol")
         } else if let msg = response.msg {
             throw CommonError(message: msg)
         }
@@ -34,15 +31,19 @@ public class Setup: @unchecked Sendable  {
 
     public func fLoadSymbols() async throws {
         let path = "GET /fapi/v1/exchangeInfo"
-        let response = try await RestAPI.send(path: path, dataKey: "symbols")
-        if response.succeed {
-            guard let dicArr = response.data as? [[String: Any]] else {
-                throw CommonError(message: "exchangeInfo接口data字段返回格式有问题")
-            }
-            fSymbols = dicArr.map { Symbol(dic: $0) }
-            print("symbol请求成功，总共请求到\(fSymbols.count)个symbol")
+        let response = try await RestAPI.send(path: path, dataKey: "symbols", dataClass: [Symbol].self)
+        if response.succeed, let ss = response.res.model as? [Symbol] {
+            fSymbols = ss
+            print("symbol请求成功，总共请求到\(fSymbols.count)个合约symbol")
         } else if let msg = response.msg {
             throw CommonError(message: msg)
         }
+    }
+    
+    public func featureSymbol(for key: String) throws -> Symbol {
+        if let s = fSymbols.first(where: { $0.symbol == key }) {
+            return s
+        }
+        throw CommonError(message: "没有找到symbol为\(key)的对象")
     }
 }

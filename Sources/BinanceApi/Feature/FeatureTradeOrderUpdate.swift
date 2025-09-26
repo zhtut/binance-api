@@ -8,7 +8,7 @@
 import Foundation
 
 /// 定义TradeOrderUpdate结构体，用于表示交易订单更新相关信息，并遵循Codable协议用于数据解析
-public struct FeatureTradeOrderUpdate: Codable {
+public struct FeatureTradeOrderUpdate: Codable, Sendable {
     
     public static let key = "ORDER_TRADE_UPDATE"
     
@@ -20,7 +20,7 @@ public struct FeatureTradeOrderUpdate: Codable {
     public let E: Int
     
     /// 定义内部结构体用于存放订单详细信息，遵循Codable协议
-    public struct OrderDetails: Codable {
+    public struct OrderDetails: Codable, Sendable {
         /// 交易对
         public let s: String
         /// 客户端自定订单ID

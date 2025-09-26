@@ -8,7 +8,7 @@
 import Foundation
 
 /// 资产
-public struct Balance: Codable {
+public struct Balance: Codable, Sendable {
     public var asset: String  // ": "USDT",
     public var free: String  // ": "1",    // 可用余额
     public var locked: String  // ": "0",  // 锁定资金

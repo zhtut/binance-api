@@ -7,17 +7,27 @@
 
 import Foundation
 import CommonUtils
+import DefaultCodable
 
-public struct Symbol {
+public struct Symbol: Codable, Sendable {
     
-    public var symbol: String? ///": "ETHBTC",
-    public var status: String? ///": "TRADING",
-    public var baseAsset: String? ///": "ETH",
-    public var baseAssetPrecision: Int? ///": 8,
-    public var quoteAsset: String? ///": "BTC",
-    public var quotePrecision: Int? ///": 8,
-    public var quoteAssetPrecision: Int? ///": 8,
-    public var orderTypes: [String]? ///": [
+    @Default
+    public var symbol: String ///": "ETHBTC",
+    @Default
+    public var status: String ///": "TRADING",
+    @Default
+    public var baseAsset: String ///": "ETH",
+    @Default
+    public var baseAssetPrecision: Int ///": 8,
+    @Default
+    public var quoteAsset: String ///": "BTC",
+    @Default
+    public var quotePrecision: Int ///": 8,
+    @Default
+    public var quoteAssetPrecision: Int ///": 8,
+    ///
+    @Default
+    public var orderTypes: [String] ///": [
     //    LIMIT",
     //    LIMIT_MAKER",
     //    MARKET",
@@ -26,70 +36,54 @@ public struct Symbol {
     //    TAKE_PROFIT",
     //    TAKE_PROFIT_LIMIT"
     //    ],
-    public var icebergAllowed: Bool? ///": true,
-    public var ocoAllowed: Bool? ///": true,
-    public var isSpotTradingAllowed: Bool? ///": true,
-    public var isMarginTradingAllowed: Bool? ///": true,
-    public var filters: [[String: Any]]?  ///": [
+    @Default
+    public var icebergAllowed: Bool ///": true,
+    @Default
+    public var ocoAllowed: Bool ///": true,
+    @Default
+    public var isSpotTradingAllowed: Bool ///": true,
+    @Default
+    public var isMarginTradingAllowed: Bool ///": true,
+
+    @Default
+    public var filters: [[String: String]]  ///": [
     //这些在"过滤器"部分中定义
     //所有限制都是可选的
     //    ],
-    public var permissions: [String]? /// ": [
+    @Default
+    public var permissions: [String] /// ": [
     //    "SPOT",
     //    "MARGIN"
     //    ]
     //    }
 
     public var minSz: String? {
-        if let filters = filters {
-            for dic in filters {
-                if let filterType = dic.stringFor("filterType"),
-                   filterType == "LOT_SIZE" {
-                    return dic.stringFor("minQty")
-                }
+        for dic in filters {
+            if let filterType = dic.stringFor("filterType"),
+               filterType == "LOT_SIZE" {
+                return dic.stringFor("minQty")
             }
         }
         return nil
     }
 
     public var lotSz: String? {
-        if let filters = filters {
-            for dic in filters {
-                if let filterType = dic.stringFor("filterType"),
-                   filterType == "LOT_SIZE" {
-                    return dic.stringFor("stepSize")
-                }
+        for dic in filters {
+            if let filterType = dic.stringFor("filterType"),
+               filterType == "LOT_SIZE" {
+                return dic.stringFor("stepSize")
             }
         }
         return nil
     }
 
     public var tickSz: String? {
-        if let filters = filters {
-            for dic in filters {
-                if let filterType = dic.stringFor("filterType"),
-                   filterType == "PRICE_FILTER" {
-                    return dic.stringFor("tickSize")
-                }
+        for dic in filters {
+            if let filterType = dic.stringFor("filterType"),
+               filterType == "PRICE_FILTER" {
+                return dic.stringFor("tickSize")
             }
         }
         return nil
-    }
-
-    public init(dic: [String: Any]) {
-        symbol = dic.stringFor("symbol")
-        status = dic.stringFor("status")
-        baseAsset = dic.stringFor("baseAsset")
-        baseAssetPrecision = dic.intFor("baseAssetPrecision")
-        quoteAsset = dic.stringFor("quoteAsset")
-        quotePrecision = dic.intFor("quotePrecision")
-        quoteAssetPrecision = dic.intFor("quoteAssetPrecision")
-        orderTypes = dic.arrayFor("orderTypes") as? [String]
-        icebergAllowed = dic.boolFor("icebergAllowed")
-        ocoAllowed = dic.boolFor("ocoAllowed")
-        isSpotTradingAllowed = dic.boolFor("isSpotTradingAllowed")
-        isMarginTradingAllowed = dic.boolFor("isMarginTradingAllowed")
-        filters = dic["filters"] as? [[String: Any]]
-        permissions = dic.arrayFor("permissions") as? [String]
     }
 }

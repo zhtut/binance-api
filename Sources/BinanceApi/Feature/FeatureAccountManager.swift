@@ -14,7 +14,7 @@ import Combine
 import NIOLockedValue
 
 /// 账户信息
-open class FeatureAccountManager: NSObject, @unchecked Sendable {
+public actor FeatureAccountManager {
     
     public static let shared = FeatureAccountManager()
     
@@ -24,15 +24,13 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
     public var accountPublisher = PassthroughSubject<Void, Never>()
     
     /// 账户对象
-    @NIOLocked
-    open var account: FeatureAccount?
+    public var account: FeatureAccount?
     
     /// 当前所有资产
-    @NIOLocked
-    open var assets = [FeatureAccount.Asset]()
+    public var assets = [FeatureAccount.Asset]()
 
     /// usdt的余额
-    open var usdtAvailable: Decimal {
+    public var usdtAvailable: Decimal {
         if let usdt = assets.first(where: { $0.asset == "USDT" }) {
             return usdt.availableBalance.defaultDecimal()
         }
@@ -40,22 +38,25 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
     }
     
     /// usdt的余额
-    open var usdtBal: Decimal {
+    public var usdtBal: Decimal {
         if let usdt = assets.first(where: { $0.asset == "USDT" }) {
             return usdt.walletBalance.defaultDecimal()
         }
         return 0.0
     }
     
-    /// 当前所有持仓
-    @NIOLocked
-    open var positions = [FeatureAccount.Position]()
-    
-    public override init() {
-        super.init()
+    /// usdc的余额
+    public var usdcAvailable: Decimal {
+        if let usdt = assets.first(where: { $0.asset == "USDC" }) {
+            return usdt.availableBalance.defaultDecimal()
+        }
+        return 0.0
     }
     
-    open func updateWith(_ update: FeatureAccountUpdate) async {
+    /// 当前所有持仓
+    public var positions = [FeatureAccount.Position]()
+    
+    public func updateWith(_ update: FeatureAccountUpdate) async {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if update.E < updatePositionTime {
             return
@@ -129,13 +130,13 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
         accountPublisher.send()
     }
     
-    //    open func updateWith(_ balance: BalanceUpdate) {
+    //    public func updateWith(_ balance: BalanceUpdate) {
     //        // 这里更新的信息不足，直接刷新一下好了
     //        refresh()
     //        balancePublisher.send()
     //    }
     
-    open func refresh() {
+    public func refresh() {
         Task {
             do {
                 let path = "GET /fapi/v3/account (HMAC SHA256)"
@@ -152,7 +153,7 @@ open class FeatureAccountManager: NSObject, @unchecked Sendable {
         }
     }
     
-    open func log() {
+    public func log() {
         print("当前资产：")
         for bl in assets {
             if (bl.availableBalance.double ?? 0) > 0 {

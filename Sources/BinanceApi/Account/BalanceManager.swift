@@ -13,7 +13,7 @@ import Combine
 #endif
 
 /// 资产管理，这个跟品种无关
-open class BalanceManager: NSObject, @unchecked Sendable {
+public actor BalanceManager {
     
     public static let shared = BalanceManager()
     
@@ -23,10 +23,9 @@ open class BalanceManager: NSObject, @unchecked Sendable {
     public var balancePublisher = PassthroughSubject<Void, Never>()
     
     /// 当前所有资产
-    open var balances = [Balance]()
+    public var balances = [Balance]()
     
-    public override init() {
-        super.init()
+    public init() {
         let timer = Timer(timeInterval: 3, repeats: true) { timer in
             self.refresh()
         }
@@ -34,7 +33,7 @@ open class BalanceManager: NSObject, @unchecked Sendable {
         RunLoop.main.run()
     }
     
-    open func updateWith(_ position: OutboundAccountPosition) {
+    public func updateWith(_ position: OutboundAccountPosition) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if position.E < updatePositionTime {
             return
@@ -66,13 +65,13 @@ open class BalanceManager: NSObject, @unchecked Sendable {
         balancePublisher.send()
     }
     
-    open func updateWith(_ balance: BalanceUpdate) {
+    public func updateWith(_ balance: BalanceUpdate) {
         // 这里更新的信息不足，直接刷新一下好了
         refresh()
         balancePublisher.send()
     }
     
-    open func refresh() {
+    public func refresh() {
         Task {
             let path = "GET /api/v3/account (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataKey: "balances", dataClass: [Balance].self)
@@ -82,7 +81,7 @@ open class BalanceManager: NSObject, @unchecked Sendable {
         }
     }
     
-    open func log() {
+    public func log() {
         print("当前资产：")
         for bl in balances {
             if (bl.free.double ?? 0) > 0 ||

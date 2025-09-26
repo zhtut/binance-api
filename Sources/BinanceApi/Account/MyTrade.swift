@@ -8,7 +8,7 @@
 import Foundation
 
 /// 账户成交记录
-public struct MyTrade: Codable {
+public struct MyTrade: Codable, Sendable {
     ///    "symbol": "BNBBTC", // 交易对
     public var symbol: String
     ///    "id": 28457, // trade ID

@@ -15,7 +15,7 @@ import Combine
 #endif
 
 /// 现货账户和订单的websocket
-open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
+public actor FeatureAccountWebSocket {
     
     /// 设计成单例，一直存在
     public static let shared = FeatureAccountWebSocket()
@@ -23,8 +23,9 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     /// websocket连接
     public var ws = WebSocket()
     
-    public override init() {
-        super.init()
+    public nonisolated(unsafe) var subscriptions = Set<AnyCancellable>()
+    
+    public init() {
         
         ws.isPrintLog = true
         
@@ -35,35 +36,38 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
             }
             .store(in: &subscriptions)
         
-        // 开始连接
-        open()
-        
-        // 先请求到订单和账户数据
-        refresh()
-        
-        // 起定时器
         Task {
-            startTimer()
+            
+            // 开始连接
+            await open()
+            
+            // 先请求到订单和账户数据
+            await refresh()
+            
+            // 起定时器
+            await startTimer()
         }
     }
     
     func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
-            self.refresh()
+            Task {
+                await self.refresh()
+            }
         }
         RunLoop.current.add(timer, forMode: .common)
         RunLoop.current.run()
     }
     
-    func refresh() {
-        FeatureOrderManager.shared.refresh()
-        FeatureAccountManager.shared.refresh()
+    func refresh() async {
+        await FeatureOrderManager.shared.refresh()
+        await FeatureAccountManager.shared.refresh()
     }
     
     /// 处理数据
     /// - Parameter data: 收到的数据
-    open func processData(_ data: Data) {
+    public nonisolated func processData(_ data: Data) {
         Task {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
@@ -75,7 +79,7 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
                         let update = try JSONDecoder().decode(FeatureTradeOrderUpdate.self, from: data)
                         await didReceiveOrderUpdate(update)
                     case "listenKeyExpired":
-                        reOpen()
+                        await reopen()
                     default:
                         print("")
                     }
@@ -86,24 +90,24 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
     
     /// Payload: 账户更新
     /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
-    open func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) async {
+    public func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) async {
         await FeatureAccountManager.shared.updateWith(update)
     }
     
     /// Payload: 订单更新
     /// 订单通过executionReport事件进行更新。
-    open func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) async {
+    public func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) async {
         await FeatureOrderManager.shared.updateWith(report)
     }
     
-    open func reOpen() {
+    public func reopen() {
         Task {
             try await ws.close()
             open()
         }
     }
     
-    open func open() {
+    public func open() {
         Task {
             do {
                 let key = try await createListenKey()
@@ -118,7 +122,7 @@ open class FeatureAccountWebSocket: CombineBase, @unchecked Sendable {
         }
     }
     
-    open func createListenKey() async throws -> String {
+    public func createListenKey() async throws -> String {
         let path = "POST /fapi/v1/listenKey"
         let res = try await RestAPI.post(path: path)
         if let json = await res.res.bodyJson(),

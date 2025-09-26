@@ -8,17 +8,13 @@
 import Foundation
 
 /// 订单管理器
-open class OrderManager: NSObject, @unchecked Sendable {
+public actor OrderManager {
     
     public static let shared = OrderManager()
     
-    open var orders = [Order]()
+    public var orders = [Order]()
     
-    public override init() {
-        super.init()
-    }
-    
-    open func updateWith(_ report: ExecutionReport) {
+    public func updateWith(_ report: ExecutionReport) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if let or = orders.first(where: { $0.orderId == report.i }) {
             if or.updateTime > report.E {
@@ -35,7 +31,7 @@ open class OrderManager: NSObject, @unchecked Sendable {
     }
     
     /// 刷新全部订单
-    open func refresh() {
+    public func refresh() {
         let path = "GET /api/v3/openOrders (HMAC SHA256)"
         Task {
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
