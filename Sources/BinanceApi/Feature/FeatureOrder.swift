@@ -98,17 +98,21 @@ public struct FeatureOrder: Codable, Sendable {
     }
     
     /// 取消订单
-    public func cancel() async throws {
-        let path = "DELETE /fapi/v1/order (HMAC SHA256)"
-        let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
-        try await RestAPI.post(path: path, params: params)
+    public func cancel() throws {
+        Task {
+            let path = "DELETE /fapi/v1/order (HMAC SHA256)"
+            let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
+            try await RestAPI.post(path: path, params: params)
+        }
     }
     
     /// 取消所有订单
-    public static func cancelAllOrders(symbol: String) async throws -> BAResponse {
-        let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
-        let params = ["symbol": symbol]
-        return try await RestAPI.send(path: path, params: params)
+    public static func cancelAllOrders(symbol: String) throws {
+        Task {
+            let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
+            let params = ["symbol": symbol]
+            try await RestAPI.send(path: path, params: params)
+        }
     }
     
     public static func batchCancel(orders: [FeatureOrder]) async throws {

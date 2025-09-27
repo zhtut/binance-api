@@ -14,13 +14,15 @@ public struct BAResponse {
 
     public init(res: Response) {
         self.res = res
-        if let json = res.bodyJson {
-            if res.succeed {
+        if res.succeed {
+        } else {
+            if let json = res.bodyJson,
+               let dict = json as? [String: Any] {
+                self.code = dict["code"] as? Int
+                self.msg = dict["msg"] as? String
             } else {
-                if let dict = json as? [String: Any] {
-                    self.code = dict["code"] as? Int
-                    self.msg = dict["msg"] as? String
-                }
+                self.code = res.httpResponse.statusCode
+                self.msg = res.httpResponse.description
             }
         }
     }

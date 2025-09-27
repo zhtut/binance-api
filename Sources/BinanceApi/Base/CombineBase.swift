@@ -24,3 +24,11 @@ open class CombineBase {
         
     }
 }
+
+extension PassthroughSubject: @unchecked @retroactive Sendable {
+    
+}
+
+extension Published.Publisher: @unchecked @retroactive Sendable {
+    
+}

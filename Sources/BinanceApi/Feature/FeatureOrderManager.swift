@@ -48,7 +48,7 @@ public actor FeatureOrderManager {
     public func refresh() {
         Task {
             do {
-                let path = "GET /fapi/v1/publicOrders (HMAC SHA256)"
+                let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
                 let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
                 if let arr = res.data as? [FeatureOrder] {
                     orders = arr
@@ -62,7 +62,7 @@ public actor FeatureOrderManager {
     
     /// 取消全部订单
     public static func cancelAllOrders() async throws {
-        let path = "GET /fapi/v1/publicOrders (HMAC SHA256)"
+        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
         let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
         if let arr = res.data as? [FeatureOrder] {
             try await FeatureOrder.cancel(orders: arr)

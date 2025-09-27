@@ -1,5 +1,6 @@
 import Foundation
 import CommonUtils
+import LoggingKit
 
 public class Setup: @unchecked Sendable  {
 
@@ -18,10 +19,14 @@ public class Setup: @unchecked Sendable  {
     public func loadSymbols() async throws {
         // https://api.binance.com/api/v1/exchangeInfo
         let path = "GET /api/v3/exchangeInfo"
-        let response = try await RestAPI.send(path: path, dataKey: "symbols", dataClass: [Symbol].self)
-        if response.succeed, let ss = response.res.model as? [Symbol] {
-            symbols = ss
-            print("symbol请求成功，总共请求到\(symbols.count)个现货symbol")
+        logInfo("准备开始加载现货的所有符号信息")
+        let response = try await RestAPI.send(path: path, dataKey: "symbols")
+        if response.succeed {
+            guard let dicArr = response.data as? [[String: Any]] else {
+                throw CommonError(message: "exchangeInfo接口data字段返回格式有问题")
+            }
+            symbols = dicArr.map { Symbol(dic: $0, symbolType: .spot) }
+            logInfo("symbol请求成功，总共请求到\(symbols.count)个现货symbol")
         } else if let msg = response.msg {
             throw CommonError(message: msg)
         }
@@ -29,15 +34,26 @@ public class Setup: @unchecked Sendable  {
 
     public var fSymbols: [Symbol] = []
 
-    public func fLoadSymbols() async throws {
+    public func fLoadSymbols() throws {
         let path = "GET /fapi/v1/exchangeInfo"
-        let response = try await RestAPI.send(path: path, dataKey: "symbols", dataClass: [Symbol].self)
-        if response.succeed, let ss = response.res.model as? [Symbol] {
-            fSymbols = ss
-            print("symbol请求成功，总共请求到\(fSymbols.count)个合约symbol")
+        logInfo("准备开始加载合约的所有符号信息")
+        let response = try await RestAPI.send(path: path, dataKey: "symbols")
+        if response.succeed {
+            guard let dicArr = response.data as? [[String: Any]] else {
+                throw CommonError(message: "exchangeInfo接口data字段返回格式有问题")
+            }
+            fSymbols = dicArr.map { Symbol(dic: $0, symbolType: .feature) }
+            logInfo("symbol请求成功，总共请求到\(fSymbols.count)个合约symbol")
         } else if let msg = response.msg {
             throw CommonError(message: msg)
         }
+    }
+    
+    public func spotSymbol(for key: String) throws -> Symbol {
+        if let s = symbols.first(where: { $0.symbol == key }) {
+            return s
+        }
+        throw CommonError(message: "没有找到symbol为\(key)的对象")
     }
     
     public func featureSymbol(for key: String) throws -> Symbol {

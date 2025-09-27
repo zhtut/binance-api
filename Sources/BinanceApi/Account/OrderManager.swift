@@ -32,8 +32,8 @@ public actor OrderManager {
     
     /// 刷新全部订单
     public func refresh() {
-        let path = "GET /api/v3/openOrders (HMAC SHA256)"
         Task {
+            let path = "GET /api/v3/openOrders (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
             if let arr = res.data as? [Order] {
                 orders = arr

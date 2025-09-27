@@ -27,7 +27,9 @@ public actor BalanceManager {
     
     public init() {
         let timer = Timer(timeInterval: 3, repeats: true) { timer in
-            self.refresh()
+            Task {
+                await self.refresh()
+            }
         }
         RunLoop.main.add(timer, forMode: .common)
         RunLoop.main.run()

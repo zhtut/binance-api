@@ -8,15 +8,16 @@ var tDependencies = [PackageDescription.Target.Dependency]()
 
 pDependencies += [
     .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
-    .package(url: "https://github.com/zhtut/async-network.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/async-network.git", from: "0.4.0"),
 //    .package(path: "../async-networking"),
-    .package(url: "https://github.com/zhtut/combine-websocket.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/combine-websocket.git", from: "0.1.0"),
 //    .package(path: "../combine-websocket"),
-    .package(url: "https://github.com/zhtut/common-utils.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/common-utils.git", from: "0.1.3"),
 //    .package(path: "../../common-utils"),
-    .package(url: "https://github.com/zhtut/nio-locked-value.git", branch: "main"),
-    .package(url: "https://github.com/zhtut/default-codable.git", branch: "main"),
+    .package(url: "https://github.com/zhtut/default-codable.git", from: "1.0.3"),
 //    .package(path: "../../default-codable"),
+    .package(url: "https://github.com/zhtut/logging-kit.git", from: "0.1.0"),
+    //            .package(path: "../../logging-kit"),
 ]
 
 tDependencies += [
@@ -24,8 +25,8 @@ tDependencies += [
     .product(name: "AsyncNetwork", package: "async-network"),
     .product(name: "CombineWebSocket", package: "combine-websocket"),
     .product(name: "CommonUtils", package: "common-utils"),
-    .product(name: "NIOLockedValue", package: "nio-locked-value"),
     .product(name: "DefaultCodable", package: "default-codable"),
+    .product(name: "LoggingKit", package: "logging-kit"),
 ]
 
 #if os(macOS) || os(iOS)

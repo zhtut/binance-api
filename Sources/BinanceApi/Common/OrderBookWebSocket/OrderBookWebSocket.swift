@@ -11,21 +11,18 @@ import CombineX
 #else
 import Combine
 #endif
+import LoggingKit
 
-extension PassthroughSubject: @unchecked @retroactive Sendable {
+/// 现货的盘口
+public actor OrderBookWebSocket {
     
-}
-
-/// 合约的盘口
-public actor FeatureOrderBookWebSocket {
-    
-    public let symbol: String
-    public var orderBook: FeatureOrderBook
+    public private(set) var symbol: Symbol
+    public private(set) var orderBook: OrderBook
     
     /// websocket连接
     public let ws = WebSocket()
     
-    public let orderBookPublisher = PassthroughSubject<FeatureOrderBook, Never>()
+    public let orderBookPublisher = PassthroughSubject<OrderBook, Never>()
     
     var subscription: AnyCancellable?
     
@@ -43,9 +40,9 @@ public actor FeatureOrderBookWebSocket {
         }
     }
     
-    public init(symbol: String) {
+    public init(symbol: Symbol) {
         self.symbol = symbol
-        self.orderBook = FeatureOrderBook(symbol: symbol)
+        self.orderBook = OrderBook(symbol: symbol)
         Task {
             await setupWebSocket()
         }
@@ -53,30 +50,30 @@ public actor FeatureOrderBookWebSocket {
     
     func setupWebSocket() {
         ws.isPrintLog = false
-        
-        let baseURL = APIConfig.shared.spot.wsBaseURL
-        let url = "\(baseURL)/\(symbol.lowercased())@depth@100ms"
+        let baseURL = symbol.wssBaseURL
+        let url = "\(baseURL)/\(symbol.symbol.lowercased())@depth@100ms"
         ws.url = URL(string: url)
         ws.open()
         
         // 监听事件
         subscription = ws.onDataPublisher
             .sink { [weak self] data in
-                self?.processData(data)
+                guard let self else { return }
+                Task {
+                    await processData(data)
+                }
             }
     }
     
     /// 处理数据
     /// - Parameter data: 收到的数据
-    public nonisolated func processData(_ data: Data) {
-        Task {
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    await update(json: json)
-                }
-            } catch {
-                print("处理数据错误：\(error)")
+    public func processData(_ data: Data) async {
+        do {
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                await update(json: json)
             }
+        } catch {
+            print("处理数据错误：\(error)")
         }
     }
     

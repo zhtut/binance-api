@@ -109,9 +109,11 @@ public struct Order: Codable, Sendable {
     }
     
     /// 取消订单
-    public func cancel() async throws {
-        let path = "DELETE /api/v3/order (HMAC SHA256)"
-        let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
-        try await RestAPI.post(path: path, params: params)
+    public func cancel() throws {
+        Task {
+            let path = "DELETE /api/v3/order (HMAC SHA256)"
+            let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
+            try await RestAPI.post(path: path, params: params)
+        }
     }
 }

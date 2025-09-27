@@ -32,7 +32,7 @@ public actor FeaturePostOrderManager {
         self.symbol = symbol
     }
     
-    public var getIndexPrice: (() -> String?) = { nil }
+    public nonisolated(unsafe) var getIndexPrice: (() async -> Double?) = { nil }
     
     /// 冻结在订单中的合约张数
     public func orderPosSz() async -> Decimal {
@@ -66,7 +66,7 @@ public actor FeaturePostOrderManager {
     /// 可开张数
     public func canOpenSz() async ->  Decimal {
         let busd = await FeatureAccountManager.shared.usdcAvailable
-        if let currPx = getIndexPrice()?.decimal {
+        if let currPx = await getIndexPrice()?.decimal {
             let total = busd * lever.decimal / currPx
             return total
         }
@@ -74,11 +74,11 @@ public actor FeaturePostOrderManager {
     }
     
     /// 最低可开多少数量
-    public var baseSz: Decimal {
-        var minSz = symbol.minSz?.decimal ?? 0.0
-        let lotSz = symbol.lotSz?.decimal ?? 0.0
-        let currPx = getIndexPrice()?.decimal ?? 0.0
-        while minSz * currPx < 5 {
+    public func baseSz() async -> Decimal {
+        var minSz = symbol.minQty?.decimal ?? 0.0
+        let lotSz = symbol.stepSize?.decimal ?? 0.0
+        let currPx = await getIndexPrice()?.decimal ?? 0.0
+        while minSz * currPx < 5 { // 最低5美元
             minSz += lotSz
         }
         return minSz
@@ -102,10 +102,10 @@ public actor FeaturePostOrderManager {
             params["side"] = SELL
         }
         if let instrument = Setup.shared.fSymbols.first(where: { $0.symbol == instId }) {
-            let sz = sz.precisionStringWith(precision: instrument.lotSz ?? "")
+            let sz = sz.precisionStringWith(precision: instrument.stepSize ?? "")
             params["quantity"] = sz
             if let price = price {
-                params["price"] = price.precisionStringWith(precision: instrument.tickSz ?? "")
+                params["price"] = price.precisionStringWith(precision: instrument.tickSize ?? "")
                 params["type"] = "LIMIT"
                 params["timeInForce"] = "GTX"
             } else {

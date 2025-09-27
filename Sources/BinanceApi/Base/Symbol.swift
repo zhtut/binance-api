@@ -9,25 +9,27 @@ import Foundation
 import CommonUtils
 import DefaultCodable
 
-public struct Symbol: Codable, Sendable {
+/// 产品类型
+public enum SymbolType: Sendable {
+    /// 现货
+    case spot
+    /// 合约
+    case feature
+}
+
+
+public struct Symbol: Sendable {
     
-    @Default
+    public var type: SymbolType
+    
     public var symbol: String ///": "ETHBTC",
-    @Default
-    public var status: String ///": "TRADING",
-    @Default
-    public var baseAsset: String ///": "ETH",
-    @Default
-    public var baseAssetPrecision: Int ///": 8,
-    @Default
-    public var quoteAsset: String ///": "BTC",
-    @Default
-    public var quotePrecision: Int ///": 8,
-    @Default
-    public var quoteAssetPrecision: Int ///": 8,
-    ///
-    @Default
-    public var orderTypes: [String] ///": [
+    public var status: String? ///": "TRADING",
+    public var baseAsset: String? ///": "ETH",
+    public var baseAssetPrecision: Int? ///": 8,
+    public var quoteAsset: String? ///": "BTC",
+    public var quotePrecision: Int? ///": 8,
+    public var quoteAssetPrecision: Int? ///": 8,
+    public var orderTypes: [String]? ///": [
     //    LIMIT",
     //    LIMIT_MAKER",
     //    MARKET",
@@ -36,54 +38,79 @@ public struct Symbol: Codable, Sendable {
     //    TAKE_PROFIT",
     //    TAKE_PROFIT_LIMIT"
     //    ],
-    @Default
-    public var icebergAllowed: Bool ///": true,
-    @Default
-    public var ocoAllowed: Bool ///": true,
-    @Default
-    public var isSpotTradingAllowed: Bool ///": true,
-    @Default
-    public var isMarginTradingAllowed: Bool ///": true,
-
-    @Default
-    public var filters: [[String: String]]  ///": [
+    public var icebergAllowed: Bool? ///": true,
+    public var ocoAllowed: Bool? ///": true,
+    public var isSpotTradingAllowed: Bool? ///": true,
+    public var isMarginTradingAllowed: Bool? ///": true,
+    public var filters: [[String: String]]?  ///": [
     //这些在"过滤器"部分中定义
     //所有限制都是可选的
     //    ],
-    @Default
-    public var permissions: [String] /// ": [
+    public var permissions: [String]? /// ": [
     //    "SPOT",
     //    "MARGIN"
     //    ]
     //    }
-
-    public var minSz: String? {
-        for dic in filters {
-            if let filterType = dic.stringFor("filterType"),
-               filterType == "LOT_SIZE" {
-                return dic.stringFor("minQty")
-            }
+    
+    /// 价格下限, 最小价格
+    public var minPrice: String? {
+        if let dic = filters?.first(where: { $0.stringFor("filterType") == "PRICE_FILTER" }) {
+            return dic.stringFor("minPrice")
         }
         return nil
     }
-
-    public var lotSz: String? {
-        for dic in filters {
-            if let filterType = dic.stringFor("filterType"),
-               filterType == "LOT_SIZE" {
-                return dic.stringFor("stepSize")
-            }
+    
+    /// 订单最小价格间隔
+    public var tickSize: String? {
+        if let dic = filters?.first(where: { $0.stringFor("filterType") == "PRICE_FILTER" }) {
+            return dic.stringFor("tickSize")
         }
         return nil
     }
-
-    public var tickSz: String? {
-        for dic in filters {
-            if let filterType = dic.stringFor("filterType"),
-               filterType == "PRICE_FILTER" {
-                return dic.stringFor("tickSize")
-            }
+    
+    /// 下单数量允许的最小值.
+    public var minQty: String? {
+        if let dic = filters?.first(where: { $0.stringFor("filterType") == "LOT_SIZE" }) {
+            return dic.stringFor("minQty")
         }
         return nil
+    }
+    
+    /// 下单数量允许的步进值。
+    public var stepSize: String? {
+        if let dic = filters?.first(where: { $0.stringFor("filterType") == "LOT_SIZE" }) {
+            return dic.stringFor("stepSize")
+        }
+        return nil
+    }
+    
+    public init(dic: [String: Any], symbolType: SymbolType) {
+        self.type = symbolType
+        symbol = dic.stringFor("symbol") ?? ""
+        status = dic.stringFor("status")
+        baseAsset = dic.stringFor("baseAsset")
+        baseAssetPrecision = dic.intFor("baseAssetPrecision")
+        quoteAsset = dic.stringFor("quoteAsset")
+        quotePrecision = dic.intFor("quotePrecision")
+        quoteAssetPrecision = dic.intFor("quoteAssetPrecision")
+        orderTypes = dic.arrayFor("orderTypes") as? [String]
+        icebergAllowed = dic.boolFor("icebergAllowed")
+        ocoAllowed = dic.boolFor("ocoAllowed")
+        isSpotTradingAllowed = dic.boolFor("isSpotTradingAllowed")
+        isMarginTradingAllowed = dic.boolFor("isMarginTradingAllowed")
+        filters = dic["filters"] as? [[String: String]]
+        permissions = dic.arrayFor("permissions") as? [String]
+    }
+}
+
+public extension Symbol {
+    /// wss使用的baseURL
+    var wssBaseURL: String {
+        switch type {
+        case .spot:
+            return APIConfig.shared.spot.wsBaseURL
+        case .feature:
+            return APIConfig.shared.feature.wsBaseURL
+        }
     }
 }

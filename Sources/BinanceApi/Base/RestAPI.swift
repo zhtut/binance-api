@@ -129,6 +129,7 @@ public struct RestAPI {
         let req = Request(path: urlStr,
                           method: newMethod,
                           header: headerFields,
+                          timeOut: 10.0,
                           decodeConfig: decodeConfig,
                           printLog: printLog)
         let response = try await Networking.send(request: req)
