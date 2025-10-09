@@ -42,7 +42,7 @@ public struct Symbol: Sendable {
     public var ocoAllowed: Bool? ///": true,
     public var isSpotTradingAllowed: Bool? ///": true,
     public var isMarginTradingAllowed: Bool? ///": true,
-    public var filters: [[String: String]]?  ///": [
+    public let filters: [[String: Sendable]]?  ///": [
     //这些在"过滤器"部分中定义
     //所有限制都是可选的
     //    ],
@@ -98,7 +98,7 @@ public struct Symbol: Sendable {
         ocoAllowed = dic.boolFor("ocoAllowed")
         isSpotTradingAllowed = dic.boolFor("isSpotTradingAllowed")
         isMarginTradingAllowed = dic.boolFor("isMarginTradingAllowed")
-        filters = dic["filters"] as? [[String: String]]
+        filters = dic["filters"] as? [[String: Sendable]]
         permissions = dic.arrayFor("permissions") as? [String]
     }
 }

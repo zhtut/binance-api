@@ -32,6 +32,8 @@ public actor FeaturePostOrderManager {
         self.symbol = symbol
     }
     
+    public var baseSize: Decimal?
+    
     public nonisolated(unsafe) var getIndexPrice: (() async -> Double?) = { nil }
     
     /// 冻结在订单中的合约张数
@@ -75,12 +77,16 @@ public actor FeaturePostOrderManager {
     
     /// 最低可开多少数量
     public func baseSz() async -> Decimal {
+        if let baseSize {
+            return baseSize
+        }
         var minSz = symbol.minQty?.decimal ?? 0.0
         let lotSz = symbol.stepSize?.decimal ?? 0.0
         let currPx = await getIndexPrice()?.decimal ?? 0.0
-        while minSz * currPx < 5 { // 最低5美元
+        while minSz * currPx < 20 { // 最低20美元
             minSz += lotSz
         }
+        baseSize = minSz
         return minSz
     }
     

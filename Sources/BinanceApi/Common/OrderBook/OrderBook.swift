@@ -73,20 +73,28 @@ public actor OrderBook {
     
     /// 刷新订单簿
     public func refreshOrderBook() throws {
+        if isRefreshing {
+            return
+        }
+        isRefreshing = true
         Task {
-            isRefreshing = true
-            defer { isRefreshing = false }
+            logInfo("开始刷新orderBook")
             let path = symbol.kLinePath
             let params = ["symbol": symbol.symbol, "limit": 20] as [String: Any]
-            let response = try await RestAPI.post(path: path, params: params)
-            
-            if let message = response.data as? [String: Any] {
-                if let a = message["asks"] as? [[String]],
-                   let b = message["bids"] as? [[String]] {
-                    let lastUpdateId = message.intFor("lastUpdateId") ?? 0
-                    updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
+            do {
+                let response = try await RestAPI.post(path: path, params: params)
+                if let message = response.data as? [String: Any] {
+                    if let a = message["asks"] as? [[String]],
+                       let b = message["bids"] as? [[String]] {
+                        let lastUpdateId = message.intFor("lastUpdateId") ?? 0
+                        updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
+                        logInfo("刷新orderBook成功")
+                    }
                 }
+            } catch {
+                logError("刷新orderBook失败：\(error)")
             }
+            isRefreshing = false
         }
     }
     
@@ -116,17 +124,22 @@ public actor OrderBook {
             let pu = message.intFor("pu") ?? 0
             // pu是上一个的u，如果不等，则缺失了
             uInvalid = (pu != lastUpdateId)
+            if uInvalid {
+                logWarning("ID不匹配，pu: \(pu), lastUpdateId: \(lastUpdateId), 需要完整重刷orderBook")
+            }
         } else {
             // 现货使用当前的U跟上一个的u是否相差1，没有返回pu，只能这样判断
             // U是上一个u+1
             uInvalid = (U != lastUpdateId + 1)
+            if uInvalid {
+                logWarning("ID不匹配，U: \(U), lastUpdateId: \(lastUpdateId), 需要完整重刷orderBook")
+            }
         }
         
         if uInvalid {
             if isReady != false {
                 isReady = false
             }
-            logWarning("ID不匹配，需要完整重刷orderBook")
             try refreshOrderBook()
             return false
         }

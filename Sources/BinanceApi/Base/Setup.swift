@@ -9,24 +9,24 @@ public class Setup: @unchecked Sendable  {
     private init() {
     }
     
-    public func loadAllSymbols() async throws {
-        try await loadSymbols()
+    public func loadAllSymbols(symbols: [String] = []) async throws {
+        try await loadSymbols(symbols: symbols)
         try await fLoadSymbols()
     }
 
     public var symbols: [Symbol] = []
 
-    public func loadSymbols() async throws {
+    public func loadSymbols(symbols: [String] = []) async throws {
         // https://api.binance.com/api/v1/exchangeInfo
         let path = "GET /api/v3/exchangeInfo"
         logInfo("准备开始加载现货的所有符号信息")
-        let response = try await RestAPI.send(path: path, dataKey: "symbols")
+        let response = try await RestAPI.send(path: path, params: ["symbols": symbols], dataKey: "symbols")
         if response.succeed {
             guard let dicArr = response.data as? [[String: Any]] else {
                 throw CommonError(message: "exchangeInfo接口data字段返回格式有问题")
             }
-            symbols = dicArr.map { Symbol(dic: $0, symbolType: .spot) }
-            logInfo("symbol请求成功，总共请求到\(symbols.count)个现货symbol")
+            self.symbols = dicArr.map { Symbol(dic: $0, symbolType: .spot) }
+            logInfo("symbol请求成功，总共请求到\(self.symbols.count)个现货symbol")
         } else if let msg = response.msg {
             throw CommonError(message: msg)
         }

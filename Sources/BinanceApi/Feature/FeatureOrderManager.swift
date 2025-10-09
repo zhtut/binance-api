@@ -11,13 +11,13 @@ import CombineX
 #else
 import Combine
 #endif
+import LoggingKit
 
 /// 订单管理器
 public actor FeatureOrderManager {
     
     public static let shared = FeatureOrderManager()
     
-    @Published
     public var orders = [FeatureOrder]()
     
     public var orderPublisher = PassthroughSubject<FeatureOrder, Never>()
@@ -38,7 +38,7 @@ public actor FeatureOrderManager {
             orders.append(changedOrder)
         }
         
-        print("当前订单数量：\(orders.count)")
+        logInfo("收到订单变化，当前订单数量：\(orders.count)")
         
         orderPublisher.send(changedOrder)
     }
@@ -60,11 +60,13 @@ public actor FeatureOrderManager {
     }
     
     /// 取消全部订单
-    public static func cancelAllOrders() async throws {
-        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
-        let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
-        if let arr = res.data as? [FeatureOrder] {
-            try await FeatureOrder.cancel(orders: arr)
+    public static func cancelAllOrders(symbol: String) async throws {
+        let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
+        let res = try await RestAPI.post(path: path, params: ["symbol": symbol])
+        if res.succeed {
+            logInfo("取消所有订单成功")
+        } else {
+            logInfo("取消所有订单失败：\(res.msg ?? "")")
         }
     }
 }

@@ -13,6 +13,7 @@ import CombineX
 #else
 import Combine
 #endif
+import LoggingKit
 
 /// 现货账户和订单的websocket
 public actor FeatureAccountWebSocket {
@@ -23,11 +24,30 @@ public actor FeatureAccountWebSocket {
     /// websocket连接
     public var ws = WebSocket()
     
-    public nonisolated(unsafe) var subscriptions = Set<AnyCancellable>()
+    public var subscriptions = Set<AnyCancellable>()
     
     public init() {
         
         ws.isPrintLog = true
+        
+        Task {
+            
+            await addObserver()
+            
+            // 开始连接
+            await open()
+            
+            // 先请求到订单和账户数据
+            await refresh()
+            
+            Task.detached {
+                // 起定时器
+                await self.startTimer()
+            }
+        }
+    }
+    
+    func addObserver() {
         
         // 监听事件
         ws.onDataPublisher
@@ -36,20 +56,15 @@ public actor FeatureAccountWebSocket {
             }
             .store(in: &subscriptions)
         
-        Task {
-            
-            // 开始连接
-            await open()
-            
-            // 先请求到订单和账户数据
-            await refresh()
-            
-            // 起定时器
-            await startTimer()
-        }
+        // 监听事件
+        ws.onOpenPublisher
+            .sink { [weak self] in
+                logInfo("账户WS连接成功")
+            }
+            .store(in: &subscriptions)
     }
     
-    func startTimer() {
+    nonisolated func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
             Task {
@@ -71,6 +86,7 @@ public actor FeatureAccountWebSocket {
         Task {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
+                    logInfo("收到账户消息更新：\(json)")
                     switch e {
                     case FeatureAccountUpdate.key:
                         let update = try JSONDecoder().decode(FeatureAccountUpdate.self, from: data)
@@ -113,10 +129,11 @@ public actor FeatureAccountWebSocket {
                 let key = try await createListenKey()
                 let baseURL = APIConfig.shared.feature.wsBaseURL
                 let url = "\(baseURL)/\(key)"
+                logInfo("开始连接账户WS：\(url)")
                 ws.url = URL(string: url)
                 ws.open()
             } catch {
-                print("连接失败：\(error)，尝试重连")
+                logError("账户WS连接失败：\(error)，尝试重连")
                 open()
             }
         }
@@ -124,10 +141,11 @@ public actor FeatureAccountWebSocket {
     
     public func createListenKey() async throws -> String {
         let path = "POST /fapi/v1/listenKey"
-        let res = try await RestAPI.post(path: path)
-        if let json = await res.res.bodyJson(),
+        let res = try await RestAPI.post(path: path, printLog: true)
+        if let json = res.res.bodyJson,
            let dict = json as? [String: Any],
            let listenKey = dict.stringFor("listenKey") {
+            logInfo("请求到listenKey：\(listenKey)")
             return listenKey
         }
         throw CommonError(message: "解析body错误")
