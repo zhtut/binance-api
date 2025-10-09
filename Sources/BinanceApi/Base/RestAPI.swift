@@ -108,7 +108,12 @@ public struct RestAPI {
             var newParams = params as? [String: Any] ?? [String: Any]()
             newParams["timestamp"] = Int(Date().timeIntervalSince1970 * 1000.0)
             if let queryStr = newParams.urlQueryStr {
-                let sign = queryStr.hmacSha256With(key: try APIConfig.shared.requireSecretKey())
+                let sign: String
+                if APIConfig.shared.keyType == .ed25519 {
+                    sign = try APIConfig.shared.createSignature(payload: queryStr)
+                } else {
+                    sign = queryStr.hmacSha256With(key: try APIConfig.shared.requireSecretKey())
+                }
                 paramStr = "\(queryStr)&signature=\(sign)"
             }
         }
@@ -119,7 +124,6 @@ public struct RestAPI {
         
         var headerFields = [String: String]()
         headerFields["X-MBX-APIKEY"] = try APIConfig.shared.requireApiKey()
-        headerFields["Accept"] = "application/json"
         
         var decodeConfig: DecodeConfig?
         if dataKey != nil || dataClass != nil {

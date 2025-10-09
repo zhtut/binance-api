@@ -1,13 +1,13 @@
 {
-  "originHash" : "1d8ae35843b285c9f3eed4b236c23f870f5984fa9e5a993cd180ce67d176ada3",
+  "originHash" : "8a846d5e4a75eef3fff41bf15aad6fcb6ef4b6433cc844847b0048819192c8c8",
   "pins" : [
     {
       "identity" : "async-network",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/async-network.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "afe9927a785ceda9c69ae5e48714ec5b4c4297ae"
+        "revision" : "afe9927a785ceda9c69ae5e48714ec5b4c4297ae",
+        "version" : "0.4.0"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/combine-websocket.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "29fba277abd5c32614ad0d34e8e24c8654ad678a"
+        "revision" : "29fba277abd5c32614ad0d34e8e24c8654ad678a",
+        "version" : "0.1.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/common-utils.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "a29abb4a01549362481604bd330cf1a936e12e7b"
+        "revision" : "a29abb4a01549362481604bd330cf1a936e12e7b",
+        "version" : "0.1.3"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/default-codable.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "22a0bb574f15f9e8b188788749dc73dfc884a9c0"
+        "revision" : "22a0bb574f15f9e8b188788749dc73dfc884a9c0",
+        "version" : "1.0.3"
       }
     },
     {
@@ -44,15 +44,6 @@
       "state" : {
         "revision" : "1aca755e48f8b16f4643d38b2ab1c8d736b957ee",
         "version" : "0.1.1"
-      }
-    },
-    {
-      "identity" : "nio-locked-value",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zhtut/nio-locked-value.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "24d86730ce86e626d4499a15d5d7737c21fc7c9b"
       }
     },
     {

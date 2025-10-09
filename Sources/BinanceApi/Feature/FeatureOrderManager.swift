@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import NIOLockedValue
 #if canImport(CombineX)
 import CombineX
 #else
