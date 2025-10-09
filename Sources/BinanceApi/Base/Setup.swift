@@ -34,7 +34,7 @@ public class Setup: @unchecked Sendable  {
 
     public var fSymbols: [Symbol] = []
 
-    public func fLoadSymbols() throws {
+    public func fLoadSymbols() async throws {
         let path = "GET /fapi/v1/exchangeInfo"
         logInfo("准备开始加载合约的所有符号信息")
         let response = try await RestAPI.send(path: path, dataKey: "symbols")

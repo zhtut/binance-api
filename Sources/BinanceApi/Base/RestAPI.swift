@@ -134,6 +134,9 @@ public struct RestAPI {
                           printLog: printLog)
         let response = try await Networking.send(request: req)
         let baRes = BAResponse(res: response)
+        if !baRes.succeed {
+            baRes.res.log()
+        }
         return baRes
     }
 }
