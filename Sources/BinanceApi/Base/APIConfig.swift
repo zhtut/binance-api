@@ -106,6 +106,11 @@ public class PKCS8Ed25519Handler {
     }
 }
 
+public enum APIKeyType: Sendable {
+    case hmac
+    case ed25519
+}
+
 /// api配置
 /// https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/request-security
 public class APIConfig {
@@ -120,13 +125,8 @@ public class APIConfig {
         case notSetup
     }
     
-    public enum KeyType {
-        case hmac
-        case ed25519
-    }
-    
     // 从文件中读取配置文件
-    public func set(_ apiKey: String, secretKey: String, keyType: KeyType = .hmac) throws {
+    public func set(_ apiKey: String, secretKey: String, keyType: APIKeyType = .hmac) throws {
         self.apiKey = apiKey
         self.secretKey = secretKey
         self.keyType = keyType
@@ -137,7 +137,7 @@ public class APIConfig {
         }
     }
     
-    var keyType: KeyType = .hmac
+    var keyType: APIKeyType = .hmac
     private var apiKey: String?
     private var secretKey: String?
     
@@ -181,6 +181,7 @@ public class APIConfig {
         // 创建私钥对象
         // 根据数据大小处理不同格式
         let rawPrivateKey = try PKCS8Ed25519Handler.extractPrivateKeyFromPKCS8(privateKeyData)
+//        let rawPrivateKey = privateKeyData.prefix(32)
         self.privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: rawPrivateKey)
         
         // 创建私钥对象
