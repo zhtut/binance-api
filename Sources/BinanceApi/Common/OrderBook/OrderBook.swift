@@ -69,81 +69,54 @@ public actor OrderBook {
     
     public init(symbol: Symbol) {
         self.symbol = symbol
+        Task {
+            try await refreshOrderBook()
+        }
+        Task {
+            startTimer()
+        }
+    }
+    
+    nonisolated func startTimer() {
+        // 再起个定时器，定时拉取最新的订单和资产
+        let timer = Timer(timeInterval: 10, repeats: true) { timer in
+            Task {
+                await self.refreshOrderBook()
+            }
+        }
+        RunLoop.current.add(timer, forMode: .common)
+        RunLoop.current.run()
     }
     
     /// 刷新订单簿
-    public func refreshOrderBook() throws {
-        if isRefreshing {
-            return
-        }
-        isRefreshing = true
+    public nonisolated func refreshOrderBook() {
         Task {
             logInfo("开始刷新orderBook")
             let path = symbol.kLinePath
-            let params = ["symbol": symbol.symbol, "limit": 20] as [String: Any]
+            let params = ["symbol": symbol.symbol, "limit": 10] as [String: Any]
             do {
                 let response = try await RestAPI.post(path: path, params: params)
                 if let message = response.data as? [String: Any] {
                     if let a = message["asks"] as? [[String]],
                        let b = message["bids"] as? [[String]] {
                         let lastUpdateId = message.intFor("lastUpdateId") ?? 0
-                        updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
+                        Task {
+                            await updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
+                        }
                         logInfo("刷新orderBook成功")
                     }
                 }
             } catch {
                 logError("刷新orderBook失败：\(error)")
             }
-            isRefreshing = false
         }
     }
     
     /// 更新订单簿消息
     public func update(message: [String: Any]) async throws -> Bool {
-        if isRefreshing {
+        guard let u = message.intFor("u") else {
             return false
         }
-        
-        if lastUpdateId == 0 {
-            if isReady != false {
-                isReady = false
-            }
-            logWarning("lastUpdateId为零，需要完整重刷orderBook")
-            try refreshOrderBook()
-            return false
-        }
-        
-        guard let U = message.intFor("U"),
-              let u = message.intFor("u") else {
-            return false
-        }
-        
-        /// 当前的u是否失效
-        var uInvalid = false
-        if symbol.type == .feature {
-            let pu = message.intFor("pu") ?? 0
-            // pu是上一个的u，如果不等，则缺失了
-            uInvalid = (pu != lastUpdateId)
-            if uInvalid {
-                logWarning("ID不匹配，pu: \(pu), lastUpdateId: \(lastUpdateId), 需要完整重刷orderBook")
-            }
-        } else {
-            // 现货使用当前的U跟上一个的u是否相差1，没有返回pu，只能这样判断
-            // U是上一个u+1
-            uInvalid = (U != lastUpdateId + 1)
-            if uInvalid {
-                logWarning("ID不匹配，U: \(U), lastUpdateId: \(lastUpdateId), 需要完整重刷orderBook")
-            }
-        }
-        
-        if uInvalid {
-            if isReady != false {
-                isReady = false
-            }
-            try refreshOrderBook()
-            return false
-        }
-        
         
         // 更新操作
         if let a = message["a"] as? [[String]],
@@ -170,6 +143,12 @@ public actor OrderBook {
     
     // MARK: - Private Methods
     
+    /// 更新盘口
+    /// - Parameters:
+    ///   - a: asks
+    ///   - b: bids
+    ///   - lastUpdateId: u，最后一个更新id
+    ///   - cover: 是否覆盖
     private func updateOrderBookData(a: [[String]], b: [[String]], lastUpdateId: Int, cover: Bool = false) {
         updateAsks(a: a, cover: cover)
         updateBids(b: b, cover: cover)

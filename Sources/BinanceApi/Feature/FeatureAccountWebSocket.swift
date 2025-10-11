@@ -28,7 +28,7 @@ public actor FeatureAccountWebSocket {
     
     public init() {
         
-        ws.isPrintLog = true
+        ws.isPrintLog = false
         
         Task {
             
@@ -86,7 +86,7 @@ public actor FeatureAccountWebSocket {
         Task {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
-                    logInfo("收到账户消息更新：\(json)")
+//                    logInfo("收到账户消息更新：\(json)")
                     switch e {
                     case FeatureAccountUpdate.key:
                         let update = try JSONDecoder().decode(FeatureAccountUpdate.self, from: data)

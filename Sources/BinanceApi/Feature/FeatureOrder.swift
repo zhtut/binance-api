@@ -98,7 +98,7 @@ public struct FeatureOrder: Codable, Sendable {
     }
     
     /// 取消订单
-    public func cancel() throws {
+    public func cancel() {
         Task {
             let path = "DELETE /fapi/v1/order (HMAC SHA256)"
             let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
@@ -106,53 +106,10 @@ public struct FeatureOrder: Codable, Sendable {
         }
     }
     
-    /// 取消所有订单
-    public static func cancelAllOrders(symbol: String) throws {
-        Task {
-            let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
-            let params = ["symbol": symbol]
-            try await RestAPI.send(path: path, params: params)
-        }
-    }
-    
-    public static func batchCancel(orders: [FeatureOrder]) async throws {
-        if orders.count == 0 {
-            return
-        }
-        
-        let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
-        var orderIds = [String: [Int]]()
-        for or in orders {
-            if var ids = orderIds[or.symbol] {
-                ids.append(or.orderId)
-                orderIds[or.symbol] = ids
-            }
-        }
-        
-        if orderIds.count == 0 {
-            return
-        }
-        
-        for (symbol, orderIdList) in orderIds {
-            let params = ["symbol": symbol, "orderIdList": orderIdList] as [String : Any]
-            try await RestAPI.send(path: path, params: params)
-        }
-    }
-    
-    public static func cancel(orders: [FeatureOrder], batchCount: Int = 10) async throws {
-        if orders.count == 0 {
-            return
-        }
-        
-        if orders.count > batchCount {
-            var orders1 = orders
-            while orders1.count > 0 {
-                let topOrders = Array(orders1.prefix(batchCount))
-                orders1 = orders1.suffix(orders1.count - topOrders.count)
-                try await batchCancel(orders: topOrders)
-            }
-        } else {
-            try await batchCancel(orders: orders)
-        }
+    /// 取消订单
+    public func cancel() async throws {
+        let path = "DELETE /fapi/v1/order (HMAC SHA256)"
+        let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
+        try await RestAPI.post(path: path, params: params)
     }
 }

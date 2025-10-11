@@ -12,6 +12,7 @@ import CombineX
 import Combine
 #endif
 import LoggingKit
+import CommonUtils
 
 /// 订单管理器
 public actor FeatureOrderManager {
@@ -47,16 +48,22 @@ public actor FeatureOrderManager {
     public func refresh() {
         Task {
             do {
-                let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
-                let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
-                if let arr = res.data as? [FeatureOrder] {
-                    orders = arr
-                    print("当前订单数量：\(orders.count)")
-                }
+                orders = try await Self.getOpenOrders()
+                logInfo("接口刷新订单成功：\(orders.count)个订单")
             } catch {
                 print("请求订单信息失败：\(error)")
             }
         }
+    }
+    
+    public static func getOpenOrders() async throws -> [FeatureOrder] {
+        let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
+        let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
+        if let arr = res.data as? [FeatureOrder] {
+            print("当前订单数量：\(arr.count)")
+            return arr
+        }
+        throw CommonError(message: "没有订单")
     }
     
     /// 取消全部订单
@@ -67,6 +74,91 @@ public actor FeatureOrderManager {
             logInfo("取消所有订单成功")
         } else {
             logInfo("取消所有订单失败：\(res.msg ?? "")")
+        }
+    }
+    
+    /// 取消订单，少于10个
+    private static func batchCancel(orders: [FeatureOrder], symbol: String) async throws -> [(Bool, String?)]  {
+        if orders.count == 0 {
+            return []
+        }
+        
+        let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
+        let orderIdList = orders.compactMap({ $0.orderId })
+        let params = ["symbol": symbol, "orderIdList": orderIdList] as [String : Any]
+        let response = try await RestAPI.send(path: path, params: params)
+        var result = [(Bool, String?)]()
+        if response.succeed,
+           let data = response.data as? [[String: Any]] {
+            var hasFailed = false
+            for (_, dic) in data.enumerated() {
+                if dic.stringFor("code") != nil {
+                    hasFailed = true
+                    result.append((false, dic.stringFor("msg")))
+                } else {
+                    result.append((true, nil))
+                }
+            }
+            if hasFailed {
+                logInfo("有订单取消失败：参数：\(params)")
+            }
+        } else {
+            for _ in orders {
+                result.append((false, response.msg))
+            }
+            logInfo("取消订单失败：参数：\(params)")
+        }
+        return result
+    }
+    
+    /// 取消订单，可以多于10个
+    public static func cancel(orders: [FeatureOrder], batchCount: Int = 10) async throws {
+        var orderInfo = [String: [FeatureOrder]]()
+        for order in orders {
+            var orderArr: [FeatureOrder]
+            if let arr = orderInfo[order.symbol] {
+                orderArr = arr
+            } else {
+                orderArr = [FeatureOrder]()
+            }
+            orderArr.append(order)
+            orderInfo[order.symbol] = orderArr
+        }
+        for (symbol, orders) in orderInfo {
+            try await cancel(orders: orders, symbol: symbol, batchCount: batchCount)
+        }
+    }
+    
+    /// 取消订单，可以多于10个
+    public static func cancel(orders: [FeatureOrder], symbol: String, batchCount: Int = 10) async throws {
+        var remainingOrders = orders
+        while remainingOrders.count > 0 {
+            let topOrders: [FeatureOrder]
+            if remainingOrders.count > batchCount {
+                topOrders = Array(remainingOrders.prefix(batchCount))
+                remainingOrders = remainingOrders.suffix(remainingOrders.count - topOrders.count)
+            } else {
+                // 少于或等于10个了，一次取消
+                topOrders = remainingOrders
+                remainingOrders = []
+            }
+            
+            let result = try await batchCancel(orders: topOrders, symbol: symbol)
+            
+            var succ = 0
+            var errMsg = ""
+            for (_, handler) in result.enumerated() {
+                if handler.0 {
+                    succ += 1
+                } else {
+                    errMsg = "\(errMsg)\(handler.1 ?? "")"
+                }
+            }
+            if succ == orders.count {
+                logInfo("\(succ)个订单都取消成功")
+            } else {
+                logInfo("\(succ)个订单取消成功， \(orders.count - succ)个订单取消失败, \(errMsg)")
+            }
         }
     }
 }
