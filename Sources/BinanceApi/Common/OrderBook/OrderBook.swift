@@ -70,7 +70,7 @@ public actor OrderBook {
     public init(symbol: Symbol) {
         self.symbol = symbol
         Task {
-            try await refreshOrderBook()
+            refreshOrderBook()
         }
         Task {
             startTimer()
@@ -81,7 +81,7 @@ public actor OrderBook {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
             Task {
-                await self.refreshOrderBook()
+                self.refreshOrderBook()
             }
         }
         RunLoop.current.add(timer, forMode: .common)

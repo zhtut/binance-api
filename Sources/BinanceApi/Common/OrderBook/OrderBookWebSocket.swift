@@ -97,7 +97,7 @@ public actor OrderBookWebSocket {
     public func processData(_ data: Data) async {
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                await update(json: json)
+                update(json: json)
             }
         } catch {
             print("处理数据错误：\(error)")

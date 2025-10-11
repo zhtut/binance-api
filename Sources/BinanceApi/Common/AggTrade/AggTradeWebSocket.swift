@@ -54,13 +54,13 @@ public actor AggTradeWebSocket {
     
     /// 处理数据
     /// - Parameter data: 收到的数据
-    public func processData(_ data: Data) async {
+    public func processData(_ data: Data) {
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
                     if e == "aggTrade" {
                         let trade = try JSONDecoder().decode(Trade.self, from: data)
-                        await didReceiveAggTrade(trade)
+                        didReceiveAggTrade(trade)
                     }
                 }
             }

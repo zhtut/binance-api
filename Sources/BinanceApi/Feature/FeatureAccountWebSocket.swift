@@ -42,7 +42,7 @@ public actor FeatureAccountWebSocket {
             
             Task.detached {
                 // 起定时器
-                await self.startTimer()
+                self.startTimer()
             }
         }
     }
@@ -58,7 +58,7 @@ public actor FeatureAccountWebSocket {
         
         // 监听事件
         ws.onOpenPublisher
-            .sink { [weak self] in
+            .sink {
                 logInfo("账户WS连接成功")
             }
             .store(in: &subscriptions)
