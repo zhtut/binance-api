@@ -26,6 +26,8 @@ public actor OrderBookWebSocket {
     
     var subscription: AnyCancellable?
     
+    var lastUpdateTime: Date?
+    
     public var json: [String: Any]? {
         didSet {
             guard let json else {
@@ -36,6 +38,7 @@ public actor OrderBookWebSocket {
                 if result {
                     orderBookPublisher.send(orderBook)
                 }
+                lastUpdateTime = Date()
             }
         }
     }
@@ -45,6 +48,9 @@ public actor OrderBookWebSocket {
         self.orderBook = OrderBook(symbol: symbol)
         Task {
             await setupWebSocket()
+        }
+        Task {
+            startCheckTimer()
         }
     }
     
@@ -63,6 +69,27 @@ public actor OrderBookWebSocket {
                     await processData(data)
                 }
             }
+    }
+    
+    nonisolated func startCheckTimer() {
+        // 再起个定时器，定时拉取最新的订单和资产
+        let timer = Timer(timeInterval: 1, repeats: true) { timer in
+            Task {
+                await self.check()
+            }
+        }
+        RunLoop.current.add(timer, forMode: .common)
+        RunLoop.current.run()
+    }
+    
+    func check() {
+        if let lastUpdateTime {
+            let now = Date()
+            let offset = now.timeIntervalSince(lastUpdateTime)
+            if offset > 3 {
+                logError("order book距离最后一次ws消息已经过去：\(offset)秒，可能ws已经中断了")
+            }
+        }
     }
     
     /// 处理数据
