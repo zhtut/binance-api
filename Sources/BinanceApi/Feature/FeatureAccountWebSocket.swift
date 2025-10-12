@@ -36,7 +36,7 @@ public actor FeatureAccountWebSocket {
             await open()
             
             // 先请求到订单和账户数据
-            await refresh()
+            refresh()
         }
         
         Task.detached { [self] in

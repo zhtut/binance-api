@@ -39,7 +39,7 @@ public actor FeatureOrderManager {
             orders.append(changedOrder)
         }
         
-        logInfo("收到订单变化，当前订单数量：\(orders.count)")
+        logInfo("收到订单变化\(report.o.c): \(report.o.X)，当前订单数量：\(orders.count)")
         
         orderPublisher.send(changedOrder)
     }
@@ -60,7 +60,6 @@ public actor FeatureOrderManager {
         let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
         let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
         if let arr = res.data as? [FeatureOrder] {
-            print("当前订单数量：\(arr.count)")
             return arr
         }
         throw CommonError(message: "没有订单")

@@ -112,7 +112,8 @@ public actor FeaturePostOrderManager {
                 params["type"] = "MARKET"
             }
         }
-        params["newClientOrderId"] = "\(Date.timestamp)"
+        let uuidString = UUID().uuidString.split("-").first ?? ""
+        params["newClientOrderId"] = "\(Date.timestamp)_\(uuidString)"
         return params
     }
     

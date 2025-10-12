@@ -17,7 +17,7 @@ pDependencies += [
     .package(url: "https://github.com/zhtut/default-codable.git", from: "1.0.3"),
 //    .package(path: "../../default-codable"),
     .package(url: "https://github.com/zhtut/logging-kit.git", from: "0.1.0"),
-    //            .package(path: "../../logging-kit"),
+//    .package(path: "../../logging-kit"),
 ]
 
 tDependencies += [

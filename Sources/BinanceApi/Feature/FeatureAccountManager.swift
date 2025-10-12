@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LoggingKit
 #if canImport(CombineX)
 import CombineX
 #else
@@ -91,7 +92,7 @@ public actor FeatureAccountManager {
         }
         
         for position in update.a.P {
-            if let pa = position.pa.double, pa > 0 {
+            if let pa = position.pa.double, pa != 0 {
                 // 找到持仓
                 if let index = positions.firstIndex(where: { $0.symbol == position.s }) {
                     // 更新资产
@@ -144,29 +145,33 @@ public actor FeatureAccountManager {
                     account = acc
                     assets = acc.assets
                     positions = acc.positions ?? []
-                    log()
+                    log(isRefresh: true)
                 }
             } catch {
-                print("请求账户信息失败：\(error)")
+                logError("请求账户信息失败：\(error)")
             }
         }
     }
     
-    public func log() {
-        print("当前资产：")
+    public func log(isRefresh: Bool = false) {
+        if isRefresh {
+            logInfo("接口刷新到当前资产：")
+        } else {
+            logInfo("当前资产：")
+        }
         for bl in assets {
             if (bl.availableBalance.double ?? 0) > 0 {
-                print("\(bl.asset)，总额：\(bl.walletBalance)，可用：\(bl.availableBalance)")
+                logInfo("\(bl.asset)，总额：\(bl.walletBalance)，可用：\(bl.availableBalance)")
             }
         }
         
         if !positions.isEmpty {
-            print("当前持仓：")
+            logInfo("当前持仓：")
             for p in positions {
-                print("持仓\(p.symbol)，持仓数量：\(p.positionAmt)，方向：\(p.positionSide)")
+                logInfo("持仓\(p.symbol)，持仓数量：\(p.positionAmt)，方向：\(p.positionSide)")
             }
         } else {
-            print("当前无持仓")
+            logInfo("当前无持仓")
         }
     }
 }
