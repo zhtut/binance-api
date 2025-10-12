@@ -38,8 +38,8 @@ public actor SpotAccountWebSocket {
             await self.open()
             
             // 先请求到订单和账户数据
-            await BalanceManager.shared.refresh()
-            await OrderManager.shared.refresh()
+            BalanceManager.shared.refresh()
+            OrderManager.shared.refresh()
         }
     }
     

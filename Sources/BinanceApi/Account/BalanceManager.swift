@@ -34,9 +34,7 @@ public actor BalanceManager {
     
     func startTimer() {
         let timer = Timer(timeInterval: 3, repeats: true) { timer in
-            Task.detached { [self] in
-                await self.refresh()
-            }
+            self.refresh()
         }
         RunLoop.main.add(timer, forMode: .common)
         RunLoop.main.run()

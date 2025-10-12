@@ -65,17 +65,17 @@ public actor FeatureAccountWebSocket {
     nonisolated func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
-            Task.detached { [self] in
-                await self.refresh()
-            }
+            self.refresh()
         }
         RunLoop.current.add(timer, forMode: .common)
         RunLoop.current.run()
     }
     
-    func refresh() async {
-        await FeatureOrderManager.shared.refresh()
-        await FeatureAccountManager.shared.refresh()
+    nonisolated func refresh() {
+        Task.detached {
+            await FeatureOrderManager.shared.refresh()
+            await FeatureAccountManager.shared.refresh()
+        }
     }
     
     /// 处理数据
