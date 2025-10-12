@@ -33,9 +33,9 @@ public actor SpotAccountWebSocket {
                 self?.processData(data)
             }
             .store(in: &subscriptions)
-        Task {
+        Task.detached { [self] in
             // 开始连接
-            await open()
+            await self.open()
             
             // 先请求到订单和账户数据
             await BalanceManager.shared.refresh()
@@ -46,7 +46,7 @@ public actor SpotAccountWebSocket {
     /// 处理数据
     /// - Parameter data: 收到的数据
     public nonisolated func processData(_ data: Data) {
-        Task {
+        Task.detached { [self] in
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     if let e = json.stringFor("e") {
@@ -92,17 +92,21 @@ public actor SpotAccountWebSocket {
     }
     
     public func open() {
-        Task {
-            do {
-                let key = try await createListenKey()
-                let baseURL = APIConfig.shared.spot.wsBaseURL
-                let url = "\(baseURL)/\(key)"
-                ws.url = URL(string: url)
-                ws.open()
-            } catch {
-                print("连接失败：\(error)，尝试重连")
-                open()
-            }
+        Task.detached { [self] in
+            await isolatedOpen()
+        }
+    }
+    
+    func isolatedOpen() async {
+        do {
+            let key = try await createListenKey()
+            let baseURL = APIConfig.shared.spot.wsBaseURL
+            let url = "\(baseURL)/\(key)"
+            ws.url = URL(string: url)
+            ws.open()
+        } catch {
+            print("连接失败：\(error)，尝试重连")
+            open()
         }
     }
     

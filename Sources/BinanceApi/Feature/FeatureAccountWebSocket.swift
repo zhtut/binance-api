@@ -28,7 +28,7 @@ public actor FeatureAccountWebSocket {
     
     public init() {
         
-        Task {
+        Task.detached { [self] in
             
             await addObserver()
             
@@ -39,7 +39,7 @@ public actor FeatureAccountWebSocket {
             await refresh()
         }
         
-        Task {
+        Task.detached { [self] in
             // 起定时器
             self.startTimer()
         }
@@ -65,7 +65,7 @@ public actor FeatureAccountWebSocket {
     nonisolated func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
-            Task {
+            Task.detached { [self] in
                 await self.refresh()
             }
         }
@@ -81,7 +81,7 @@ public actor FeatureAccountWebSocket {
     /// 处理数据
     /// - Parameter data: 收到的数据
     public nonisolated func processData(_ data: Data) {
-        Task {
+        Task.detached { [self] in
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
 //                    logInfo("收到账户消息更新：\(json)")
@@ -115,25 +115,29 @@ public actor FeatureAccountWebSocket {
     }
     
     public func reopen() {
-        Task {
+        Task.detached { [self] in
             try await ws.close()
-            open()
+            await self.isolatedOpen()
         }
     }
     
     public func open() {
-        Task {
-            do {
-                let key = try await createListenKey()
-                let baseURL = APIConfig.shared.feature.wsBaseURL
-                let url = "\(baseURL)/\(key)"
-                logInfo("开始连接账户WS：\(url)")
-                ws.url = URL(string: url)
-                ws.open()
-            } catch {
-                logError("账户WS连接失败：\(error)，尝试重连")
-                open()
-            }
+        Task.detached { [self] in
+            await isolatedOpen()
+        }
+    }
+    
+    func isolatedOpen() async {
+        do {
+            let key = try await createListenKey()
+            let baseURL = APIConfig.shared.feature.wsBaseURL
+            let url = "\(baseURL)/\(key)"
+            logInfo("开始连接账户WS：\(url)")
+            ws.url = URL(string: url)
+            ws.open()
+        } catch {
+            logError("账户WS连接失败：\(error)，尝试重连")
+            open()
         }
     }
     

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LoggingKit
 
 /// 订单管理器
 public actor OrderManager {
@@ -27,18 +28,24 @@ public actor OrderManager {
             orders.append(report.createOrder)
         }
         
-        print("当前订单数量：\(orders.count)")
+        logInfo("当前订单数量：\(orders.count)")
     }
     
     /// 刷新全部订单
-    public func refresh() {
-        Task {
+    public nonisolated func refresh() {
+        Task.detached { [self] in
             let path = "GET /api/v3/openOrders (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
             if let arr = res.data as? [Order] {
-                orders = arr
-                print("当前订单数量：\(orders.count)")
+                Task {
+                    await self.setOrders(arr)
+                    logInfo("当前订单数量：\(arr.count)")
+                }
             }
         }
+    }
+    
+    func setOrders(_ orders: [Order]) {
+        self.orders = orders
     }
 }

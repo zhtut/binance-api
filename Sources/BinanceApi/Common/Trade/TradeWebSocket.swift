@@ -28,7 +28,7 @@ public actor TradeWebSocket {
     public init(symbol: Symbol) {
         self.symbol = symbol
         
-        Task {
+        Task.detached { [self] in
             await setupWebSocket()
         }
     }
@@ -45,7 +45,7 @@ public actor TradeWebSocket {
         subscription = ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task {
+                Task.detached { [self] in
                     await self.processData(data)
                 }
             }

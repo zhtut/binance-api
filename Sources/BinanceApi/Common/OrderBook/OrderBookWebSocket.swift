@@ -28,28 +28,13 @@ public actor OrderBookWebSocket {
     
     var lastUpdateTime: Date?
     
-    public var json: [String: Any]? {
-        didSet {
-            guard let json else {
-                return
-            }
-            Task {
-                let result = try await orderBook.update(message: json)
-                if result {
-                    orderBookPublisher.send(orderBook)
-                }
-                lastUpdateTime = Date()
-            }
-        }
-    }
-    
     public init(symbol: Symbol) {
         self.symbol = symbol
         self.orderBook = OrderBook(symbol: symbol)
-        Task {
+        Task.detached { [self] in
             await setupWebSocket()
         }
-        Task {
+        Task.detached { [self] in
             startCheckTimer()
         }
     }
@@ -64,8 +49,8 @@ public actor OrderBookWebSocket {
         subscription = ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task {
-                    await processData(data)
+                Task.detached { [self] in
+                    try await processData(data)
                 }
             }
     }
@@ -73,7 +58,7 @@ public actor OrderBookWebSocket {
     nonisolated func startCheckTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 1, repeats: true) { timer in
-            Task {
+            Task.detached { [self] in
                 await self.check()
             }
         }
@@ -93,17 +78,23 @@ public actor OrderBookWebSocket {
     
     /// 处理数据
     /// - Parameter data: 收到的数据
-    public func processData(_ data: Data) async {
+    public func processData(_ data: Data) throws {
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                update(json: json)
+                try update(json: json)
             }
         } catch {
             print("处理数据错误：\(error)")
         }
     }
     
-    func update(json: [String: Any]) {
-        self.json = json
+    func update(json: [String: Any]) throws {
+        Task {
+            let result = try await orderBook.update(message: json)
+            if result {
+                orderBookPublisher.send(orderBook)
+            }
+        }
+        lastUpdateTime = Date()
     }
 }

@@ -136,7 +136,7 @@ public actor FeatureAccountManager {
     //    }
     
     public func refresh() {
-        Task {
+        Task { [self] in
             do {
                 let path = "GET /fapi/v3/account (HMAC SHA256)"
                 let res = try await RestAPI.post(path: path, dataClass: FeatureAccount.self)

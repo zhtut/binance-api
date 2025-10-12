@@ -26,8 +26,15 @@ public actor BalanceManager {
     public var balances = [Balance]()
     
     public init() {
+        Task.detached {
+            // 这里会卡住当前队伍，需要新开一个task去卡
+            await self.startTimer()
+        }
+    }
+    
+    func startTimer() {
         let timer = Timer(timeInterval: 3, repeats: true) { timer in
-            Task {
+            Task.detached { [self] in
                 await self.refresh()
             }
         }
@@ -73,14 +80,20 @@ public actor BalanceManager {
         balancePublisher.send()
     }
     
-    public func refresh() {
-        Task {
+    public nonisolated func refresh() {
+        Task.detached { [self] in
             let path = "GET /api/v3/account (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataKey: "balances", dataClass: [Balance].self)
             if let arr = res.data as? [Balance] {
-                balances = arr
+                Task {
+                    await self.setBalances(arr)
+                }
             }
         }
+    }
+    
+    func setBalances(_ balances: [Balance]) {
+        self.balances = balances
     }
     
     public func log() {

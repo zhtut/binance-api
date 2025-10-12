@@ -69,20 +69,16 @@ public actor OrderBook {
     
     public init(symbol: Symbol) {
         self.symbol = symbol
-        Task {
-            refreshOrderBook()
-        }
-        Task {
-            startTimer()
+        refreshOrderBook()
+        Task.detached {
+            self.startTimer()
         }
     }
     
     nonisolated func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 10, repeats: true) { timer in
-            Task {
-                self.refreshOrderBook()
-            }
+            self.refreshOrderBook()
         }
         RunLoop.current.add(timer, forMode: .common)
         RunLoop.current.run()
@@ -90,7 +86,7 @@ public actor OrderBook {
     
     /// 刷新订单簿
     public nonisolated func refreshOrderBook() {
-        Task {
+        Task.detached { [self] in
             logInfo("开始刷新orderBook")
             let path = symbol.kLinePath
             let params = ["symbol": symbol.symbol, "limit": 10] as [String: Any]
@@ -100,7 +96,7 @@ public actor OrderBook {
                     if let a = message["asks"] as? [[String]],
                        let b = message["bids"] as? [[String]] {
                         let lastUpdateId = message.intFor("lastUpdateId") ?? 0
-                        Task {
+                        Task.detached { [self] in
                             await updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
                         }
                         logInfo("刷新orderBook成功")

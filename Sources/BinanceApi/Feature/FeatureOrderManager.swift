@@ -46,7 +46,7 @@ public actor FeatureOrderManager {
     
     /// 刷新全部订单
     public func refresh() {
-        Task {
+        Task { [self] in
             do {
                 orders = try await Self.getOpenOrders()
                 logInfo("接口刷新订单成功：\(orders.count)个订单")
