@@ -55,7 +55,6 @@ public actor OrderBookWebSocket {
     }
     
     func setupWebSocket() {
-        ws.isPrintLog = false
         let baseURL = symbol.wssBaseURL
         let url = "\(baseURL)/\(symbol.symbol.lowercased())@depth@100ms"
         ws.url = URL(string: url)

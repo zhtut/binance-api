@@ -36,7 +36,6 @@ public actor AggTradeWebSocket {
     func setupWebSocket() {
         
         // 监听事件
-        ws.isPrintLog = false
         let baseURL = symbol.wssBaseURL
         let url = "\(baseURL)/\(symbol.symbol.lowercased())@aggTrade"
         ws.url = URL(string: url)

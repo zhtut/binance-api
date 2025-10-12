@@ -28,8 +28,6 @@ public actor FeatureAccountWebSocket {
     
     public init() {
         
-        ws.isPrintLog = false
-        
         Task {
             
             await addObserver()
@@ -39,11 +37,11 @@ public actor FeatureAccountWebSocket {
             
             // 先请求到订单和账户数据
             await refresh()
-            
-            Task.detached {
-                // 起定时器
-                self.startTimer()
-            }
+        }
+        
+        Task {
+            // 起定时器
+            self.startTimer()
         }
     }
     

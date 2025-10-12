@@ -27,8 +27,6 @@ public actor SpotAccountWebSocket {
         
     public init() {
         
-        ws.isPrintLog = true
-        
         // 监听事件
         ws.onDataPublisher
             .sink { [weak self] data in

@@ -1,5 +1,5 @@
 {
-  "originHash" : "8a846d5e4a75eef3fff41bf15aad6fcb6ef4b6433cc844847b0048819192c8c8",
+  "originHash" : "da8f44738872404c0bb378b0ea6e47e02b8336e2bab4b113e8d635679ddab5cb",
   "pins" : [
     {
       "identity" : "async-network",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "afe9927a785ceda9c69ae5e48714ec5b4c4297ae",
         "version" : "0.4.0"
-      }
-    },
-    {
-      "identity" : "combine-websocket",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zhtut/combine-websocket.git",
-      "state" : {
-        "revision" : "29fba277abd5c32614ad0d34e8e24c8654ad678a",
-        "version" : "0.1.0"
       }
     },
     {
