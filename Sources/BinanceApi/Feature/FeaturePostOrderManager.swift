@@ -112,6 +112,7 @@ public actor FeaturePostOrderManager {
                 params["type"] = "MARKET"
             }
         }
+        params["newClientOrderId"] = "\(Date.timestamp)"
         return params
     }
     

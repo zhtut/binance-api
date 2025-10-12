@@ -17,13 +17,13 @@ public actor OrderManager {
     
     public func updateWith(_ report: ExecutionReport) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
-        if let or = orders.first(where: { $0.orderId == report.i }) {
+        if let or = orders.first(where: { $0.clientOrderId == report.c }) {
             if or.updateTime > report.E {
                 return
             }
         }
         
-        orders.removeAll(where: { $0.orderId == report.i })
+        orders.removeAll(where: { $0.clientOrderId == report.c })
         if report.X == .NEW || report.X == .PARTIALLY_FILLED {
             orders.append(report.createOrder)
         }

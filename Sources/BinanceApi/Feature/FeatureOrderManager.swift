@@ -25,13 +25,13 @@ public actor FeatureOrderManager {
     
     public func updateWith(_ report: FeatureTradeOrderUpdate) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
-        if let or = orders.first(where: { $0.orderId == report.o.i }) {
+        if let or = orders.first(where: { $0.clientOrderId == report.o.c }) {
             if or.updateTime > report.E {
                 return
             }
         }
         
-        orders.removeAll(where: { $0.orderId == report.o.i })
+        orders.removeAll(where: { $0.clientOrderId == report.o.c })
         
         let changedOrder = report.createOrder
         
@@ -84,23 +84,27 @@ public actor FeatureOrderManager {
         }
         
         let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
-        let orderIdList = orders.compactMap({ $0.orderId })
-        let params = ["symbol": symbol, "orderIdList": orderIdList] as [String : Any]
+        let selfOrders = await shared.orders
+        let orderIdList = orders.compactMap({ $0.clientOrderId })
+            .filter({ selfOrders.compactMap({ $0.clientOrderId }).contains($0) }) // 过滤掉不包含的订单
+        if orderIdList.isEmpty {
+            logInfo("没有订单需要取消，退出")
+            return []
+        }
+        let params = ["symbol": symbol, "origClientOrderIdList": orderIdList] as [String : Any]
         let response = try await RestAPI.send(path: path, params: params)
         var result = [(Bool, String?)]()
         if response.succeed,
            let data = response.data as? [[String: Any]] {
-            var hasFailed = false
-            for (_, dic) in data.enumerated() {
+            for (index, dic) in data.enumerated() {
                 if dic.stringFor("code") != nil {
-                    hasFailed = true
-                    result.append((false, dic.stringFor("msg")))
+                    let msg = dic.stringFor("msg")
+                    result.append((false, msg))
+                    let clientId = orderIdList[index]
+                    logInfo("\(clientId)订单取消失败：\(msg ?? "")")
                 } else {
                     result.append((true, nil))
                 }
-            }
-            if hasFailed {
-                logInfo("有订单取消失败：参数：\(params)")
             }
         } else {
             for _ in orders {
