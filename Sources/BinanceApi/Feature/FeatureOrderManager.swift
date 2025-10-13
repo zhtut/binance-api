@@ -52,7 +52,7 @@ public class FeatureOrderManager: @unchecked Sendable {
             do {
                 let orders = try await Self.getOpenOrders()
                 logInfo("接口刷新订单成功：\(orders.count)个订单")
-                await self.setOrders(orders)
+                self.setOrders(orders)
             } catch {
                 print("请求订单信息失败：\(error)")
             }
@@ -90,7 +90,7 @@ public class FeatureOrderManager: @unchecked Sendable {
         }
         
         let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
-        let selfOrders = await shared.orders
+        let selfOrders = shared.orders
         let orderIdList = orders.compactMap({ $0.clientOrderId })
             .filter({ selfOrders.compactMap({ $0.clientOrderId }).contains($0) }) // 过滤掉不包含的订单
         if orderIdList.isEmpty {

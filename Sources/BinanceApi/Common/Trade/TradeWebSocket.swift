@@ -27,10 +27,7 @@ public class TradeWebSocket: @unchecked Sendable {
     
     public init(symbol: Symbol) {
         self.symbol = symbol
-        
-        Task.detached { [self] in
-            await setupWebSocket()
-        }
+        setupWebSocket()
     }
     
     func setupWebSocket() {
@@ -46,7 +43,7 @@ public class TradeWebSocket: @unchecked Sendable {
             .sink { [weak self] data in
                 guard let self else { return }
                 Task.detached { [self] in
-                    await self.processData(data)
+                    self.processData(data)
                 }
             }
     }

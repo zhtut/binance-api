@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NIOLockedValue
 #if canImport(CombineX)
 import CombineX
 #else
@@ -17,18 +18,20 @@ public class BalanceManager: @unchecked Sendable {
     
     public static let shared = BalanceManager()
     
+    @NIOLocked
     var updatePositionTime: Int = 0
     
     /// 资产更新通知
     public var balancePublisher = PassthroughSubject<Void, Never>()
     
     /// 当前所有资产
+    @NIOLocked
     public var balances = [Balance]()
     
     public init() {
         Task.detached {
             // 这里会卡住当前队伍，需要新开一个task去卡
-            await self.startTimer()
+            self.startTimer()
         }
     }
     
@@ -83,7 +86,7 @@ public class BalanceManager: @unchecked Sendable {
             let path = "GET /api/v3/account (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataKey: "balances", dataClass: [Balance].self)
             if let arr = res.data as? [Balance] {
-                await self.setBalances(arr)
+                self.setBalances(arr)
             }
         }
     }

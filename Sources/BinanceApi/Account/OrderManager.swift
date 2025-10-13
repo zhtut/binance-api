@@ -7,12 +7,14 @@
 
 import Foundation
 import LoggingKit
+import NIOLockedValue
 
 /// 订单管理器
 public class OrderManager: @unchecked Sendable {
     
     public static let shared = OrderManager()
     
+    @NIOLocked
     public var orders = [Order]()
     
     public func updateWith(_ report: ExecutionReport) {
@@ -37,7 +39,7 @@ public class OrderManager: @unchecked Sendable {
             let path = "GET /api/v3/openOrders (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
             if let arr = res.data as? [Order] {
-                await self.setOrders(arr)
+                self.setOrders(arr)
                 logInfo("当前订单数量：\(arr.count)")
             }
         }

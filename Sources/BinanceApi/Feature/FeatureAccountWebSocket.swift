@@ -30,10 +30,10 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
         
         Task.detached { [self] in
             
-            await addObserver()
+            addObserver()
             
             // 开始连接
-            await open()
+            open()
             
             // 先请求到订单和账户数据
             refresh()
@@ -73,8 +73,8 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     nonisolated func refresh() {
         Task.detached {
-            await FeatureOrderManager.shared.refresh()
-            await FeatureAccountManager.shared.refresh()
+            FeatureOrderManager.shared.refresh()
+            FeatureAccountManager.shared.refresh()
         }
     }
     
@@ -88,12 +88,12 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
                     switch e {
                     case FeatureAccountUpdate.key:
                         let update = try JSONDecoder().decode(FeatureAccountUpdate.self, from: data)
-                        await didReceiveAccountUpdate(update)
+                        didReceiveAccountUpdate(update)
                     case FeatureTradeOrderUpdate.key:
                         let update = try JSONDecoder().decode(FeatureTradeOrderUpdate.self, from: data)
-                        await didReceiveOrderUpdate(update)
+                        didReceiveOrderUpdate(update)
                     case "listenKeyExpired":
-                        await reopen()
+                        reopen()
                     default:
                         print("")
                     }
@@ -104,14 +104,14 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     /// Payload: 账户更新
     /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
-    public func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) async {
-        await FeatureAccountManager.shared.updateWith(update)
+    public func didReceiveAccountUpdate(_ update: FeatureAccountUpdate) {
+        FeatureAccountManager.shared.updateWith(update)
     }
     
     /// Payload: 订单更新
     /// 订单通过executionReport事件进行更新。
-    public func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) async {
-        await FeatureOrderManager.shared.updateWith(report)
+    public func didReceiveOrderUpdate(_ report: FeatureTradeOrderUpdate) {
+        FeatureOrderManager.shared.updateWith(report)
     }
     
     public func reopen() {
@@ -143,7 +143,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     public func createListenKey() async throws -> String {
         let path = "POST /fapi/v1/listenKey"
-        let res = try await RestAPI.post(path: path, printLog: true)
+        let res = try await RestAPI.post(path: path)
         if let json = res.res.bodyJson,
            let dict = json as? [String: Any],
            let listenKey = dict.stringFor("listenKey") {

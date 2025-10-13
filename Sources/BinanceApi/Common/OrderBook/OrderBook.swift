@@ -97,7 +97,7 @@ public class OrderBook: @unchecked Sendable {
                        let b = message["bids"] as? [[String]] {
                         let lastUpdateId = message.intFor("lastUpdateId") ?? 0
                         Task.detached { [self] in
-                            await updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
+                            updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
                         }
                         logInfo("刷新orderBook成功")
                     }

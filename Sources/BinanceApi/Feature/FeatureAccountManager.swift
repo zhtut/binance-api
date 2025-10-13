@@ -147,7 +147,7 @@ public class FeatureAccountManager: @unchecked Sendable {
                 let path = "GET /fapi/v3/account (HMAC SHA256)"
                 let res = try await RestAPI.post(path: path, dataClass: FeatureAccount.self)
                 if let acc = res.data as? FeatureAccount {
-                    await setAccount(acc)
+                    setAccount(acc)
                 }
             } catch {
                 logError("请求账户信息失败：\(error)")

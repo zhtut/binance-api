@@ -15,7 +15,7 @@ import Combine
 #endif
 
 /// 现货账户和订单的websocket
-public actor SpotAccountWebSocket {
+public class SpotAccountWebSocket: @unchecked Sendable {
     
     /// 设计成单例，一直存在
     public static let shared = SpotAccountWebSocket()
@@ -35,7 +35,7 @@ public actor SpotAccountWebSocket {
             .store(in: &subscriptions)
         Task.detached { [self] in
             // 开始连接
-            await self.open()
+            self.open()
             
             // 先请求到订单和账户数据
             BalanceManager.shared.refresh()
@@ -53,13 +53,13 @@ public actor SpotAccountWebSocket {
                         switch e {
                         case OutboundAccountPosition.key:
                             let position = try JSONDecoder().decode(OutboundAccountPosition.self, from: data)
-                            await didReceiveAccountUpdate(position)
+                            didReceiveAccountUpdate(position)
                         case BalanceUpdate.key:
                             let update = try JSONDecoder().decode(BalanceUpdate.self, from: data)
-                            await didReceiveBalanceUpdate(update)
+                            didReceiveBalanceUpdate(update)
                         case ExecutionReport.key:
                             let report = try JSONDecoder().decode(ExecutionReport.self, from: data)
-                            await didReceiveOrderUpdate(report)
+                            didReceiveOrderUpdate(report)
                         default:
                             print("")
                         }
@@ -73,22 +73,22 @@ public actor SpotAccountWebSocket {
     
     /// Payload: 账户更新
     /// 每当帐户余额发生更改时，都会发送一个事件outboundAccountPosition，其中包含可能由生成余额变动的事件而变动的资产。
-    public func didReceiveAccountUpdate(_ position: OutboundAccountPosition) async {
-        await BalanceManager.shared.updateWith(position)
+    public func didReceiveAccountUpdate(_ position: OutboundAccountPosition) {
+        BalanceManager.shared.updateWith(position)
     }
     
     /// Payload: 余额更新
     /// 当下列情形发生时更新:
     /// - 账户发生充值或提取
     /// - 交易账户之间发生划转(例如 现货向杠杆账户划转)
-    public func didReceiveBalanceUpdate(_ update: BalanceUpdate) async {
-        await BalanceManager.shared.updateWith(update)
+    public func didReceiveBalanceUpdate(_ update: BalanceUpdate) {
+        BalanceManager.shared.updateWith(update)
     }
     
     /// Payload: 订单更新
     /// 订单通过executionReport事件进行更新。
-    public func didReceiveOrderUpdate(_ report: ExecutionReport) async {
-        await OrderManager.shared.updateWith(report)
+    public func didReceiveOrderUpdate(_ report: ExecutionReport) {
+        OrderManager.shared.updateWith(report)
     }
     
     public func open() {

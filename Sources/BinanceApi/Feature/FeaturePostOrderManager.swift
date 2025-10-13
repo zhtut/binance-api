@@ -8,6 +8,7 @@
 import Foundation
 import CommonUtils
 import LoggingKit
+import NIOLockedValue
 
 public let BUY = "BUY"
 public let SELL = "SELL"
@@ -29,20 +30,31 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     /// 倍率
     public var lever: Int = 5
     
-    public init(symbol: Symbol) {
+    public var getCurrentPrice: (() -> Decimal?)?
+    
+    public init(symbol: Symbol, getCurrentPrice: (() -> Decimal?)? = nil) {
         self.symbol = symbol
+        self.getCurrentPrice = getCurrentPrice
     }
     
+    @NIOLocked
     public var currentIndexPrice: Decimal?
     
     public func setCurrentPrice(_ currentPrice: Decimal?) async {
         currentIndexPrice = currentPrice
     }
     
+    func currentPrice() -> Decimal? {
+        if let getCurrentPrice {
+            return getCurrentPrice()
+        }
+        return currentIndexPrice
+    }
+    
     /// 冻结在订单中的合约张数
     public func orderPosSz() async -> Decimal {
         logInfo("获取orderPosSz")
-        let orders = await FeatureOrderManager.shared.orders
+        let orders = FeatureOrderManager.shared.orders
         logInfo("orders: \(orders)")
         let filters = orders.filter({ $0.symbol == symbol.symbol })
         if filters.count > 0 {
@@ -60,7 +72,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     /// 持仓总数量，买入大于0，卖出小于0
     public func positionSz() async -> Decimal {
         logInfo("获取positionSz")
-        let positions = await FeatureAccountManager.shared.positions
+        let positions = FeatureAccountManager.shared.positions
         logInfo("positions数量：\(positions.count)")
         let filters = positions.filter({ $0.symbol == symbol.symbol })
         var count: Decimal = 0.0
@@ -75,9 +87,9 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     /// 可开张数
     public func canOpenSz() async ->  Decimal {
         logInfo("获取canOpenSz")
-        let busd = await FeatureAccountManager.shared.usdcAvailable
+        let busd = FeatureAccountManager.shared.usdcAvailable
         logInfo("busd：\(busd)")
-        if let currPx = currentIndexPrice {
+        if let currPx = currentPrice() {
             let total = busd * lever.decimal / currPx
             return total
         }
@@ -88,7 +100,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     public func baseSz() async -> Decimal {
         var minSz = symbol.minQty?.decimal ?? 0.0
         let lotSz = symbol.stepSize?.decimal ?? 0.0
-        let currPx = currentIndexPrice ?? 0.0
+        let currPx = currentPrice() ?? 0.0
         while minSz * currPx < 20 { // 最低20美元
             minSz += lotSz
         }
@@ -190,7 +202,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     
     /// 一键清仓
     public static func closePositions() async throws -> (succ: Bool, errMsg: String?) {
-        let positions = await FeatureAccountManager.shared.positions
+        let positions = FeatureAccountManager.shared.positions
         if positions.count > 0 {
             for position in positions {
                 if let positionAmt = position.positionAmt.decimal {

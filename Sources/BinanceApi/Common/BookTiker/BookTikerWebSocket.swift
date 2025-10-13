@@ -40,9 +40,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
     public init(symbol: Symbol) {
         self.symbol = symbol
         
-        Task.detached { [self] in
-            await setupWebSocket()
-        }
+        setupWebSocket()
         checkTask = Task.detached { [weak self] in
             guard let self else { return }
             startCheckTimer()
@@ -60,7 +58,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
             .sink { [weak self] data in
                 guard let self else { return }
                 Task.detached { [self] in
-                    try await processData(data)
+                    try processData(data)
                 }
             }.store(in: &subscriptions)
     }
@@ -70,7 +68,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
             Task.detached {
-                await self.check()
+                self.check()
             }
         }
         checkTimer = timer
@@ -95,6 +93,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
         do {
             let bookTiker = try JSONDecoder().decode(BookTiker.self, from: data)
             self.bookTiker = bookTiker
+            self.bookTikerPublisher.send(bookTiker)
         } catch {
             print("处理数据错误：\(error)")
         }

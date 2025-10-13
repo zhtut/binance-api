@@ -35,9 +35,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
     public init(symbol: Symbol) {
         self.symbol = symbol
         self.orderBook = OrderBook(symbol: symbol)
-        Task.detached { [self] in
-            await setupWebSocket()
-        }
+        setupWebSocket()
         checkTask = Task.detached { [weak self] in
             guard let self else { return }
             startCheckTimer()
@@ -55,7 +53,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
             .sink { [weak self] data in
                 guard let self else { return }
                 Task.detached { [self] in
-                    try await processData(data)
+                    try processData(data)
                 }
             }.store(in: &subscriptions)
     }
@@ -65,7 +63,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
             Task.detached {
-                await self.check()
+                self.check()
             }
         }
         checkTimer = timer
