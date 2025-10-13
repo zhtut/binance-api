@@ -7,6 +7,7 @@
 
 import Foundation
 import LoggingKit
+import NIOLockedValue
 #if canImport(CombineX)
 import CombineX
 #else
@@ -18,15 +19,18 @@ public class FeatureAccountManager: @unchecked Sendable {
     
     public static let shared = FeatureAccountManager()
     
+    @NIOLocked
     var updatePositionTime: Int = 0
     
     /// 账户更新通知
     public var accountPublisher = PassthroughSubject<Void, Never>()
     
     /// 账户对象
+    @NIOLocked
     public var account: FeatureAccount?
     
     /// 当前所有资产
+    @NIOLocked
     public var assets = [FeatureAccount.Asset]()
 
     /// usdt的余额
@@ -54,6 +58,7 @@ public class FeatureAccountManager: @unchecked Sendable {
     }
     
     /// 当前所有持仓
+    @NIOLocked
     public var positions = [FeatureAccount.Position]()
     
     public func updateWith(_ update: FeatureAccountUpdate) {

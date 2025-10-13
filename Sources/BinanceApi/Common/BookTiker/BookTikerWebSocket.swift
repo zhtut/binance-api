@@ -13,20 +13,24 @@ import CombineX
 import Combine
 #endif
 import LoggingKit
+import NIOLockedValue
 
 /// 现货的盘口
 public class BookTikerWebSocket: @unchecked Sendable {
     
     public private(set) var symbol: Symbol
     
-    @Published
+    @NIOLocked
     public var bookTiker: BookTiker?
+    
+    public var bookTikerPublisher = PassthroughSubject<BookTiker?, Never>()
     
     /// websocket连接
     public let ws = WebSocket()
     
     var subscriptions = Set<AnyCancellable>()
     
+    @NIOLocked
     var lastUpdateTime: Date?
     
     nonisolated(unsafe) var checkTask: Task<Void, Never>?

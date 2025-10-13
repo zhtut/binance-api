@@ -13,12 +13,14 @@ import Combine
 #endif
 import LoggingKit
 import CommonUtils
+import NIOLockedValue
 
 /// 订单管理器
 public class FeatureOrderManager: @unchecked Sendable {
     
     public static let shared = FeatureOrderManager()
     
+    @NIOLocked
     public var orders = [FeatureOrder]()
     
     public var orderPublisher = PassthroughSubject<FeatureOrder, Never>()
