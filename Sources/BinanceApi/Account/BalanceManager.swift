@@ -13,7 +13,7 @@ import Combine
 #endif
 
 /// 资产管理，这个跟品种无关
-public actor BalanceManager {
+public class BalanceManager: @unchecked Sendable {
     
     public static let shared = BalanceManager()
     
@@ -79,13 +79,11 @@ public actor BalanceManager {
     }
     
     public nonisolated func refresh() {
-        Task.detached { [self] in
+        Task.detached {
             let path = "GET /api/v3/account (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataKey: "balances", dataClass: [Balance].self)
             if let arr = res.data as? [Balance] {
-                Task {
-                    await self.setBalances(arr)
-                }
+                await self.setBalances(arr)
             }
         }
     }

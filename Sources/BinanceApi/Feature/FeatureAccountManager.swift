@@ -14,7 +14,7 @@ import Combine
 #endif
 
 /// 账户信息
-public actor FeatureAccountManager {
+public class FeatureAccountManager: @unchecked Sendable {
     
     public static let shared = FeatureAccountManager()
     
@@ -56,7 +56,7 @@ public actor FeatureAccountManager {
     /// 当前所有持仓
     public var positions = [FeatureAccount.Position]()
     
-    public func updateWith(_ update: FeatureAccountUpdate) async {
+    public func updateWith(_ update: FeatureAccountUpdate) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if update.E < updatePositionTime {
             return
@@ -137,20 +137,24 @@ public actor FeatureAccountManager {
     //    }
     
     public func refresh() {
-        Task { [self] in
+        Task.detached { [self] in
             do {
                 let path = "GET /fapi/v3/account (HMAC SHA256)"
                 let res = try await RestAPI.post(path: path, dataClass: FeatureAccount.self)
                 if let acc = res.data as? FeatureAccount {
-                    account = acc
-                    assets = acc.assets
-                    positions = acc.positions ?? []
-                    log(isRefresh: true)
+                    await setAccount(acc)
                 }
             } catch {
                 logError("请求账户信息失败：\(error)")
             }
         }
+    }
+    
+    func setAccount(_ acc: FeatureAccount) {
+        account = acc
+        assets = acc.assets
+        positions = acc.positions ?? []
+        log(isRefresh: true)
     }
     
     public func log(isRefresh: Bool = false) {

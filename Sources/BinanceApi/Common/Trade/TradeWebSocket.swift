@@ -13,7 +13,7 @@ import Combine
 #endif
 
 /// 逐笔交易记录
-public actor TradeWebSocket {
+public class TradeWebSocket: @unchecked Sendable {
     
     public private(set) var symbol: Symbol
     

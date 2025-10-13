@@ -16,7 +16,7 @@ import Combine
 import LoggingKit
 
 /// 现货账户和订单的websocket
-public actor FeatureAccountWebSocket {
+public class FeatureAccountWebSocket: @unchecked Sendable {
     
     /// 设计成单例，一直存在
     public static let shared = FeatureAccountWebSocket()

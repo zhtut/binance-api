@@ -113,3 +113,9 @@ public struct FeatureOrder: Codable, Sendable {
         try await RestAPI.post(path: path, params: params)
     }
 }
+
+extension FeatureOrder: CustomStringConvertible {
+    public var description: String {
+        "订单\(clientOrderId)\(side == .BUY ? "买入" : "卖出")\(price)"
+    }
+}

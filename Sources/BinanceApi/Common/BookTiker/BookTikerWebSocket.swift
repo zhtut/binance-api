@@ -1,9 +1,10 @@
 //
-//  TradeWebSocket.swift
-//  BinanceTrader
+//  BookTikerWebSocket.swift
+//  binance-api
 //
-//  Created by tutuzhou on 2024/11/14.
+//  Created by tutuzhou on 2025/10/13.
 //
+
 import Foundation
 import CombineWebSocket
 #if canImport(CombineX)
@@ -14,15 +15,15 @@ import Combine
 import LoggingKit
 
 /// 现货的盘口
-public class OrderBookWebSocket: @unchecked Sendable {
+public class BookTikerWebSocket: @unchecked Sendable {
     
     public private(set) var symbol: Symbol
-    public private(set) var orderBook: OrderBook
+    
+    @Published
+    public var bookTiker: BookTiker?
     
     /// websocket连接
     public let ws = WebSocket()
-    
-    public let orderBookPublisher = PassthroughSubject<OrderBook, Never>()
     
     var subscriptions = Set<AnyCancellable>()
     
@@ -34,7 +35,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
     
     public init(symbol: Symbol) {
         self.symbol = symbol
-        self.orderBook = OrderBook(symbol: symbol)
+        
         Task.detached { [self] in
             await setupWebSocket()
         }
@@ -46,7 +47,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
     
     func setupWebSocket() {
         let baseURL = symbol.wssBaseURL
-        let url = "\(baseURL)/\(symbol.symbol.lowercased())@depth@100ms"
+        let url = "\(baseURL)/\(symbol.symbol.lowercased())@bookTicker"
         ws.url = URL(string: url)
         ws.open()
         
@@ -77,8 +78,8 @@ public class OrderBookWebSocket: @unchecked Sendable {
         if let lastUpdateTime {
             let now = Date()
             let offset = now.timeIntervalSince(lastUpdateTime)
-            if offset > 3 {
-                logError("order book距离最后一次ws消息已经过去：\(offset)秒，可能ws已经中断了")
+            if offset > 2 {
+                logError("book tiker 距离最后一次ws消息已经过去：\(offset)秒，可能ws已经中断了")
             }
         }
     }
@@ -86,20 +87,12 @@ public class OrderBookWebSocket: @unchecked Sendable {
     /// 处理数据
     /// - Parameter data: 收到的数据
     public func processData(_ data: Data) throws {
+        lastUpdateTime = Date()
         do {
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                try update(json: json)
-            }
+            let bookTiker = try JSONDecoder().decode(BookTiker.self, from: data)
+            self.bookTiker = bookTiker
         } catch {
             print("处理数据错误：\(error)")
-        }
-    }
-    
-    func update(json: [String: Any]) throws {
-        lastUpdateTime = Date()
-        let result = orderBook.update(message: json)
-        if result {
-            orderBookPublisher.send(orderBook)
         }
     }
     

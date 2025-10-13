@@ -9,7 +9,7 @@ import Foundation
 import LoggingKit
 
 /// 订单管理器
-public actor OrderManager {
+public class OrderManager: @unchecked Sendable {
     
     public static let shared = OrderManager()
     
@@ -37,10 +37,8 @@ public actor OrderManager {
             let path = "GET /api/v3/openOrders (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
             if let arr = res.data as? [Order] {
-                Task {
-                    await self.setOrders(arr)
-                    logInfo("当前订单数量：\(arr.count)")
-                }
+                await self.setOrders(arr)
+                logInfo("当前订单数量：\(arr.count)")
             }
         }
     }

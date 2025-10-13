@@ -7,6 +7,7 @@
 
 import Foundation
 import CommonUtils
+import LoggingKit
 
 public let BUY = "BUY"
 public let SELL = "SELL"
@@ -21,7 +22,7 @@ public let EXPIRED = "EXPIRED"
 public let NEW_INSURANCE = "NEW_INSURANCE" //  风险保障基金(强平)
 public let NEW_ADL = "NEW_ADL" // 自动减仓序列(强平)
 
-public actor FeaturePostOrderManager {
+public class FeaturePostOrderManager: @unchecked Sendable {
     
     public var symbol: Symbol
     
@@ -32,11 +33,17 @@ public actor FeaturePostOrderManager {
         self.symbol = symbol
     }
     
-    public nonisolated(unsafe) var getIndexPrice: (() async -> Double?) = { nil }
+    public var currentIndexPrice: Decimal?
+    
+    public func setCurrentPrice(_ currentPrice: Decimal?) async {
+        currentIndexPrice = currentPrice
+    }
     
     /// 冻结在订单中的合约张数
     public func orderPosSz() async -> Decimal {
+        logInfo("获取orderPosSz")
         let orders = await FeatureOrderManager.shared.orders
+        logInfo("orders: \(orders)")
         let filters = orders.filter({ $0.symbol == symbol.symbol })
         if filters.count > 0 {
             var count = Decimal(0.0)
@@ -52,7 +59,9 @@ public actor FeaturePostOrderManager {
     
     /// 持仓总数量，买入大于0，卖出小于0
     public func positionSz() async -> Decimal {
+        logInfo("获取positionSz")
         let positions = await FeatureAccountManager.shared.positions
+        logInfo("positions数量：\(positions.count)")
         let filters = positions.filter({ $0.symbol == symbol.symbol })
         var count: Decimal = 0.0
         for po in filters {
@@ -65,8 +74,10 @@ public actor FeaturePostOrderManager {
     
     /// 可开张数
     public func canOpenSz() async ->  Decimal {
+        logInfo("获取canOpenSz")
         let busd = await FeatureAccountManager.shared.usdcAvailable
-        if let currPx = await getIndexPrice()?.decimal {
+        logInfo("busd：\(busd)")
+        if let currPx = currentIndexPrice {
             let total = busd * lever.decimal / currPx
             return total
         }
@@ -77,11 +88,16 @@ public actor FeaturePostOrderManager {
     public func baseSz() async -> Decimal {
         var minSz = symbol.minQty?.decimal ?? 0.0
         let lotSz = symbol.stepSize?.decimal ?? 0.0
-        let currPx = await getIndexPrice()?.decimal ?? 0.0
+        let currPx = currentIndexPrice ?? 0.0
         while minSz * currPx < 20 { // 最低20美元
             minSz += lotSz
         }
         return minSz
+    }
+    
+    public static func createClientOrderId() -> String {
+        let uuidString = UUID().uuidString.split("-").first ?? ""
+        return "\(Date.timestamp)_\(uuidString)"
     }
     
     /*
@@ -91,9 +107,10 @@ public actor FeaturePostOrderManager {
      GTX - Good Till Crossing 无法成为挂单方就撤销
      */
     public static func orderParamsWith(instId: String,
-                                    isBuy: Bool,
-                                    price: Decimal? = nil,
-                                    sz: Decimal) -> [String: Any] {
+                                       isBuy: Bool,
+                                       price: Decimal? = nil,
+                                       sz: Decimal,
+                                       newClientOrderId: String? = nil) -> [String: Any] {
         var params = [String: Any]()
         params["symbol"] = instId
         if isBuy {
@@ -112,8 +129,8 @@ public actor FeaturePostOrderManager {
                 params["type"] = "MARKET"
             }
         }
-        let uuidString = UUID().uuidString.split("-").first ?? ""
-        params["newClientOrderId"] = "\(Date.timestamp)_\(uuidString)"
+        let cid = newClientOrderId ?? createClientOrderId()
+        params["newClientOrderId"] = cid
         return params
     }
     

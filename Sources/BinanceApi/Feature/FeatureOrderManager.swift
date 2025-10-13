@@ -15,7 +15,7 @@ import LoggingKit
 import CommonUtils
 
 /// 订单管理器
-public actor FeatureOrderManager {
+public class FeatureOrderManager: @unchecked Sendable {
     
     public static let shared = FeatureOrderManager()
     
@@ -46,14 +46,19 @@ public actor FeatureOrderManager {
     
     /// 刷新全部订单
     public func refresh() {
-        Task { [self] in
+        Task.detached {
             do {
-                orders = try await Self.getOpenOrders()
+                let orders = try await Self.getOpenOrders()
                 logInfo("接口刷新订单成功：\(orders.count)个订单")
+                await self.setOrders(orders)
             } catch {
                 print("请求订单信息失败：\(error)")
             }
         }
+    }
+    
+    func setOrders(_ orders: [FeatureOrder]) {
+        self.orders = orders
     }
     
     public static func getOpenOrders() async throws -> [FeatureOrder] {

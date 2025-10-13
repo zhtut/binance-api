@@ -42,7 +42,7 @@ public extension Symbol {
 }
 
 /// 盘口价格本 - 使用actor避免资源竞争
-public actor OrderBook {
+public class OrderBook: @unchecked Sendable {
     
     public let symbol: Symbol
     
@@ -58,9 +58,9 @@ public actor OrderBook {
     public private(set) var isReady: Bool = false
     
     /// 中间价
-    public var centerPrice: Double? {
-        guard let bid = bids.first?.p.double,
-              let ask = asks.first?.p.double else {
+    public var centerPrice: Decimal? {
+        guard let bid = bids.first?.p,
+              let ask = asks.first?.p else {
             return nil
         }
         let center = (bid + ask) / 2.0
@@ -109,7 +109,7 @@ public actor OrderBook {
     }
     
     /// 更新订单簿消息
-    public func update(message: [String: Any]) async throws -> Bool {
+    public func update(message: [String: Any]) -> Bool {
         guard let u = message.intFor("u") else {
             return false
         }
