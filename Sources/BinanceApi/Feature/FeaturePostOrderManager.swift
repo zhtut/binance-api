@@ -40,7 +40,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     @NIOLocked
     public var currentIndexPrice: Decimal?
     
-    public func setCurrentPrice(_ currentPrice: Decimal?) async {
+    public func setCurrentPrice(_ currentPrice: Decimal?) {
         currentIndexPrice = currentPrice
     }
     
@@ -52,7 +52,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     /// 冻结在订单中的合约张数
-    public func orderPosSz() async -> Decimal {
+    public func orderPosSz() -> Decimal {
         logInfo("获取orderPosSz")
         let orders = FeatureOrderManager.shared.orders
         logInfo("orders: \(orders)")
@@ -70,7 +70,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     /// 持仓总数量，买入大于0，卖出小于0
-    public func positionSz() async -> Decimal {
+    public func positionSz() -> Decimal {
         logInfo("获取positionSz")
         let positions = FeatureAccountManager.shared.positions
         logInfo("positions数量：\(positions.count)")
@@ -85,7 +85,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     /// 可开张数
-    public func canOpenSz() async ->  Decimal {
+    public func canOpenSz() ->  Decimal {
         logInfo("获取canOpenSz")
         let busd = FeatureAccountManager.shared.usdcAvailable
         logInfo("busd：\(busd)")
@@ -97,7 +97,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     /// 最低可开多少数量
-    public func baseSz() async -> Decimal {
+    public func baseSz() -> Decimal {
         var minSz = symbol.minQty?.decimal ?? 0.0
         let lotSz = symbol.stepSize?.decimal ?? 0.0
         let currPx = currentPrice() ?? 0.0
