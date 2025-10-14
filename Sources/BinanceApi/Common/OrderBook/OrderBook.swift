@@ -70,7 +70,7 @@ public class OrderBook: @unchecked Sendable {
     public init(symbol: Symbol) {
         self.symbol = symbol
         refreshOrderBook()
-        Task.detached {
+        Task {
             self.startTimer()
         }
     }
@@ -86,7 +86,7 @@ public class OrderBook: @unchecked Sendable {
     
     /// 刷新订单簿
     public nonisolated func refreshOrderBook() {
-        Task.detached { [self] in
+        Task { [self] in
             logInfo("开始刷新orderBook")
             let path = symbol.kLinePath
             let params = ["symbol": symbol.symbol, "limit": 10] as [String: Any]
@@ -96,7 +96,7 @@ public class OrderBook: @unchecked Sendable {
                     if let a = message["asks"] as? [[String]],
                        let b = message["bids"] as? [[String]] {
                         let lastUpdateId = message.intFor("lastUpdateId") ?? 0
-                        Task.detached { [self] in
+                        Task { [self] in
                             updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
                         }
                         logInfo("刷新orderBook成功")

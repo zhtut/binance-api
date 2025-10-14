@@ -28,18 +28,16 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     public init() {
         
-        Task.detached { [self] in
-            
-            addObserver()
-            
-            // 开始连接
-            open()
-            
-            // 先请求到订单和账户数据
-            refresh()
-        }
         
-        Task.detached { [self] in
+        addObserver()
+        
+        // 开始连接
+        open()
+        
+        // 先请求到订单和账户数据
+        refresh()
+        
+        Task { [self] in
             // 起定时器
             self.startTimer()
         }
@@ -72,7 +70,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     }
     
     nonisolated func refresh() {
-        Task.detached {
+        Task {
             FeatureOrderManager.shared.refresh()
             FeatureAccountManager.shared.refresh()
         }
@@ -81,7 +79,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     /// 处理数据
     /// - Parameter data: 收到的数据
     public nonisolated func processData(_ data: Data) {
-        Task.detached { [self] in
+        Task { [self] in
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if let e = json.stringFor("e") {
 //                    logInfo("收到账户消息更新：\(json)")
@@ -115,14 +113,14 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     }
     
     public func reopen() {
-        Task.detached { [self] in
+        Task { [self] in
             try await ws.close()
             await self.isolatedOpen()
         }
     }
     
     public func open() {
-        Task.detached { [self] in
+        Task { [self] in
             await isolatedOpen()
         }
     }

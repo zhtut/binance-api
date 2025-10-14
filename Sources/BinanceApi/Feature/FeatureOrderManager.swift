@@ -48,7 +48,7 @@ public class FeatureOrderManager: @unchecked Sendable {
     
     /// 刷新全部订单
     public func refresh() {
-        Task.detached {
+        Task {
             do {
                 let orders = try await Self.getOpenOrders()
                 logInfo("接口刷新订单成功：\(orders.count)个订单")

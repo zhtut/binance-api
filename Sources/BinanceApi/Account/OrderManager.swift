@@ -35,7 +35,7 @@ public class OrderManager: @unchecked Sendable {
     
     /// 刷新全部订单
     public nonisolated func refresh() {
-        Task.detached { [self] in
+        Task { [self] in
             let path = "GET /api/v3/openOrders (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataClass: [Order].self)
             if let arr = res.data as? [Order] {

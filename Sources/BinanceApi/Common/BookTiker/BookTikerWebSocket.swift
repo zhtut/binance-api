@@ -41,7 +41,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
         self.symbol = symbol
         
         setupWebSocket()
-        checkTask = Task.detached { [weak self] in
+        checkTask = Task { [weak self] in
             guard let self else { return }
             startCheckTimer()
         }
@@ -57,7 +57,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
         ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task.detached { [self] in
+                Task { [self] in
                     try processData(data)
                 }
             }.store(in: &subscriptions)
@@ -67,7 +67,7 @@ public class BookTikerWebSocket: @unchecked Sendable {
         // 再起个定时器，定时拉取最新的订单和资产
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
-            Task.detached {
+            Task {
                 self.check()
             }
         }

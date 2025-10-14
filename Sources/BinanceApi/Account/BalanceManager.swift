@@ -29,7 +29,7 @@ public class BalanceManager: @unchecked Sendable {
     public var balances = [Balance]()
     
     public init() {
-        Task.detached {
+        Task {
             // 这里会卡住当前队伍，需要新开一个task去卡
             self.startTimer()
         }
@@ -82,7 +82,7 @@ public class BalanceManager: @unchecked Sendable {
     }
     
     public nonisolated func refresh() {
-        Task.detached {
+        Task {
             let path = "GET /api/v3/account (HMAC SHA256)"
             let res = try await RestAPI.post(path: path, dataKey: "balances", dataClass: [Balance].self)
             if let arr = res.data as? [Balance] {

@@ -42,7 +42,7 @@ public class TradeWebSocket: @unchecked Sendable {
         subscription = ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task.detached { [self] in
+                Task { [self] in
                     self.processData(data)
                 }
             }

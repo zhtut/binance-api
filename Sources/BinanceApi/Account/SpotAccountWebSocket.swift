@@ -33,7 +33,7 @@ public class SpotAccountWebSocket: @unchecked Sendable {
                 self?.processData(data)
             }
             .store(in: &subscriptions)
-        Task.detached { [self] in
+        Task { [self] in
             // 开始连接
             self.open()
             
@@ -46,7 +46,7 @@ public class SpotAccountWebSocket: @unchecked Sendable {
     /// 处理数据
     /// - Parameter data: 收到的数据
     public nonisolated func processData(_ data: Data) {
-        Task.detached { [self] in
+        Task { [self] in
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     if let e = json.stringFor("e") {
@@ -92,7 +92,7 @@ public class SpotAccountWebSocket: @unchecked Sendable {
     }
     
     public func open() {
-        Task.detached { [self] in
+        Task { [self] in
             await isolatedOpen()
         }
     }

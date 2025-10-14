@@ -28,7 +28,7 @@ public actor AggTradeWebSocket {
     public init(symbol: Symbol) {
         self.symbol = symbol
         
-        Task.detached { [self] in
+        Task { [self] in
             await setupWebSocket()
         }
     }
@@ -45,7 +45,7 @@ public actor AggTradeWebSocket {
         subscription = ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task.detached { [self] in
+                Task { [self] in
                     await self.processData(data)
                 }
             }

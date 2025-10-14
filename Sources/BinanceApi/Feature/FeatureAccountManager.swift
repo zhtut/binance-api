@@ -142,7 +142,7 @@ public class FeatureAccountManager: @unchecked Sendable {
     //    }
     
     public func refresh() {
-        Task.detached { [self] in
+        Task { [self] in
             do {
                 let path = "GET /fapi/v3/account (HMAC SHA256)"
                 let res = try await RestAPI.post(path: path, dataClass: FeatureAccount.self)
