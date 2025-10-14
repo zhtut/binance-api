@@ -28,12 +28,16 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     public init() {
         
+        logInfo("开始初始化账户WebSocket")
         
         addObserver()
+        
+        logInfo("开始连接账户WebSocket")
         
         // 开始连接
         open()
         
+        logInfo("先请求到订单和账户数据")
         // 先请求到订单和账户数据
         refresh()
         
