@@ -90,7 +90,6 @@ public class BookTikerWebSocket: @unchecked Sendable {
     }
     
     deinit {
-        checkTask?.cancel()
         checkTimer?.invalidate()
     }
 }

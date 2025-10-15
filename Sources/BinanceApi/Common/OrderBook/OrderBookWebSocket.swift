@@ -24,17 +24,14 @@ public class OrderBookWebSocket: @unchecked Sendable {
     
     var lastUpdateTime: Date?
     
-    nonisolated(unsafe) var checkTask: Task<Void, Never>?
-    
     nonisolated(unsafe) var checkTimer: Timer?
     
     public init(symbol: Symbol) {
         self.symbol = symbol
         self.orderBook = OrderBook(symbol: symbol)
         setupWebSocket()
-        checkTask = Task { [weak self] in
-            guard let self else { return }
-            startCheckTimer()
+        Task {
+            await startTimer()
         }
     }
     
@@ -94,7 +91,6 @@ public class OrderBookWebSocket: @unchecked Sendable {
     }
     
     deinit {
-        checkTask?.cancel()
         checkTimer?.invalidate()
     }
 }
