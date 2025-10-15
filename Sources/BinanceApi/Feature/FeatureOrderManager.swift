@@ -6,11 +6,7 @@
 //
 
 import Foundation
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 import LoggingKit
 import CommonUtils
 import NIOLockedValue

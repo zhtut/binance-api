@@ -7,11 +7,7 @@
 
 import Foundation
 import LoggingKit
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 盘口价格
 public struct OrderBookPrice : Sendable{
@@ -54,7 +50,7 @@ public class OrderBook: @unchecked Sendable {
     public var isRefreshing = false
     
     /// 是否数据正常
-    @Published
+    @CombineX.Published
     public private(set) var isReady: Bool = false
     
     /// 中间价

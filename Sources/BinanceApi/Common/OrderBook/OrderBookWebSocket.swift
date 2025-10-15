@@ -6,11 +6,7 @@
 //
 import Foundation
 import CombineWebSocket
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 import LoggingKit
 
 /// 现货的盘口

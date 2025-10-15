@@ -8,11 +8,7 @@
 import Foundation
 import CombineWebSocket
 import CommonUtils
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 现货账户和订单的websocket
 public class SpotAccountWebSocket: @unchecked Sendable {

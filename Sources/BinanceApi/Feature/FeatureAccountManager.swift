@@ -8,11 +8,7 @@
 import Foundation
 import LoggingKit
 import NIOLockedValue
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 账户信息
 public class FeatureAccountManager: @unchecked Sendable {

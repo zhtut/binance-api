@@ -7,11 +7,7 @@
 
 import Foundation
 import NIOLockedValue
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 资产管理，这个跟品种无关
 public class BalanceManager: @unchecked Sendable {

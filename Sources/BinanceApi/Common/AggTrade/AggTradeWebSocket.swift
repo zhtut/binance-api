@@ -6,11 +6,7 @@
 //
 import Foundation
 import CombineWebSocket
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 归集交易记录
 public actor AggTradeWebSocket {

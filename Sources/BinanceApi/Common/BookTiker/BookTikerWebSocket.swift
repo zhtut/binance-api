@@ -7,11 +7,7 @@
 
 import Foundation
 import CombineWebSocket
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 import LoggingKit
 import NIOLockedValue
 

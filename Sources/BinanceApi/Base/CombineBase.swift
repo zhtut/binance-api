@@ -6,11 +6,7 @@
 //
 
 import Foundation
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// combine基类
 open class CombineBase {
@@ -23,12 +19,4 @@ open class CombineBase {
     public init() {
         
     }
-}
-
-extension PassthroughSubject: @unchecked @retroactive Sendable {
-    
-}
-
-extension Published.Publisher: @unchecked @retroactive Sendable {
-    
 }

@@ -8,11 +8,7 @@
 import Foundation
 import CombineWebSocket
 import CommonUtils
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 import LoggingKit
 
 /// 现货账户和订单的websocket

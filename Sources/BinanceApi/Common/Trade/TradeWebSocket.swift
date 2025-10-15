@@ -6,11 +6,7 @@
 //
 import Foundation
 import CombineWebSocket
-#if canImport(CombineX)
 import CombineX
-#else
-import Combine
-#endif
 
 /// 逐笔交易记录
 public class TradeWebSocket: @unchecked Sendable {
