@@ -27,18 +27,16 @@ public class BalanceManager: @unchecked Sendable {
     public var checkTimer: Timer?
     
     public init() {
-        Task {
-            // 这里会卡住当前队伍，需要新开一个task去卡
-            await self.startTimer()
-        }
+        self.startTimer()
     }
     
-    @MainActor
     func startTimer() {
-        checkTimer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
+        let timer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
             guard let self else { return }
             self.refresh()
         }
+        checkTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
     
     public func updateWith(_ position: OutboundAccountPosition) {

@@ -68,18 +68,17 @@ public class OrderBook: @unchecked Sendable {
     public init(symbol: Symbol) {
         self.symbol = symbol
         refreshOrderBook()
-        Task {
-            await self.startTimer()
-        }
+        startTimer()
     }
     
-    @MainActor
     func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
-        checkTimer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
+        let timer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
             guard let self else { return }
             self.refreshOrderBook()
         }
+        checkTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
     
     /// 刷新订单簿

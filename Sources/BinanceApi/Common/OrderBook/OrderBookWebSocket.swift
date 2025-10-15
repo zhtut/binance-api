@@ -30,9 +30,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
         self.symbol = symbol
         self.orderBook = OrderBook(symbol: symbol)
         setupWebSocket()
-        Task {
-            await startTimer()
-        }
+        startTimer()
     }
     
     func setupWebSocket() {
@@ -51,13 +49,14 @@ public class OrderBookWebSocket: @unchecked Sendable {
             }.store(in: &subscriptions)
     }
     
-    @MainActor
     func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
-        checkTimer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
+        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
             self.check()
         }
+        checkTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
     
     func check() {
