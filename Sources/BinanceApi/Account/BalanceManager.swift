@@ -24,19 +24,21 @@ public class BalanceManager: @unchecked Sendable {
     @NIOLocked
     public var balances = [Balance]()
     
+    public var checkTimer: Timer?
+    
     public init() {
         Task {
             // 这里会卡住当前队伍，需要新开一个task去卡
-            self.startTimer()
+            await self.startTimer()
         }
     }
     
+    @MainActor
     func startTimer() {
-        let timer = Timer(timeInterval: 3, repeats: true) { timer in
+        checkTimer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
+            guard let self else { return }
             self.refresh()
         }
-        RunLoop.main.add(timer, forMode: .common)
-        RunLoop.main.run()
     }
     
     public func updateWith(_ position: OutboundAccountPosition) {

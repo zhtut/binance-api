@@ -54,17 +54,13 @@ public class OrderBookWebSocket: @unchecked Sendable {
             }.store(in: &subscriptions)
     }
     
-    nonisolated func startCheckTimer() {
+    @MainActor
+    func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
-        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
+        checkTimer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
-            Task {
-                self.check()
-            }
+            self.check()
         }
-        checkTimer = timer
-        RunLoop.current.add(timer, forMode: .common)
-        RunLoop.current.run()
     }
     
     func check() {

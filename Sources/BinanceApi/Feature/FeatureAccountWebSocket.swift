@@ -22,6 +22,8 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     
     public var subscriptions = Set<AnyCancellable>()
     
+    var checkTimer: Timer?
+    
     public init() {
         
         logInfo("开始初始化账户WebSocket")
@@ -39,7 +41,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
         
         Task { [self] in
             // 起定时器
-            self.startTimer()
+            await self.startTimer()
         }
     }
     
@@ -60,13 +62,13 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
             .store(in: &subscriptions)
     }
     
-    nonisolated func startTimer() {
+    @MainActor
+    func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
-        let timer = Timer(timeInterval: 10, repeats: true) { timer in
+        checkTimer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
+            guard let self else { return }
             self.refresh()
         }
-        RunLoop.current.add(timer, forMode: .common)
-        RunLoop.current.run()
     }
     
     nonisolated func refresh() {

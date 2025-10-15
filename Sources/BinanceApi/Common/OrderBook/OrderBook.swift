@@ -53,6 +53,8 @@ public class OrderBook: @unchecked Sendable {
     @CombineX.Published
     public private(set) var isReady: Bool = false
     
+    var checkTimer: Timer?
+    
     /// 中间价
     public var centerPrice: Decimal? {
         guard let bid = bids.first?.p,
@@ -67,17 +69,17 @@ public class OrderBook: @unchecked Sendable {
         self.symbol = symbol
         refreshOrderBook()
         Task {
-            self.startTimer()
+            await self.startTimer()
         }
     }
     
-    nonisolated func startTimer() {
+    @MainActor
+    func startTimer() {
         // 再起个定时器，定时拉取最新的订单和资产
-        let timer = Timer(timeInterval: 10, repeats: true) { timer in
+        checkTimer = Timer(timeInterval: 10, repeats: true) { [weak self] timer in
+            guard let self else { return }
             self.refreshOrderBook()
         }
-        RunLoop.current.add(timer, forMode: .common)
-        RunLoop.current.run()
     }
     
     /// 刷新订单簿
