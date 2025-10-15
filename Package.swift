@@ -11,7 +11,7 @@ pDependencies += [
     .package(url: "https://github.com/zhtut/nio-locked-value.git", from: "0.1.0"),
     .package(url: "https://github.com/zhtut/async-network.git", from: "0.4.0"),
 //    .package(path: "../async-networking"),
-    .package(url: "https://github.com/zhtut/combine-websocket.git", from: "0.2.0"),
+    .package(url: "https://github.com/zhtut/combine-websocket.git", from: "0.3.0"),
 //    .package(path: "../../combine-websocket"),
     .package(url: "https://github.com/zhtut/common-utils.git", from: "0.1.3"),
 //    .package(path: "../../common-utils"),
@@ -30,18 +30,6 @@ tDependencies += [
     .product(name: "DefaultCodable", package: "default-codable"),
     .product(name: "LoggingKit", package: "logging-kit"),
 ]
-
-#if os(macOS) || os(iOS)
-// ios 和 macos不需要这个，系统自带了
-#else
-let latestVersion: Range<Version> = "0.0.1"..<"99.99.99"
-pDependencies += [
-    .package(url: "https://github.com/zhtut/CombineX.git", latestVersion),
-]
-tDependencies += [
-    "CombineX",
-]
-#endif
 
 let package = Package(
     name: "binance-api",
