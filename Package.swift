@@ -9,8 +9,8 @@ var tDependencies = [PackageDescription.Target.Dependency]()
 pDependencies += [
     .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.0"),
     .package(url: "https://github.com/zhtut/nio-locked-value.git", from: "0.1.0"),
-    .package(url: "https://github.com/zhtut/async-network.git", from: "0.4.0"),
-//    .package(path: "../async-networking"),
+    .package(url: "https://github.com/zhtut/async-network.git", from: "0.4.2"),
+//    .package(path: "../../async-network"),
     .package(url: "https://github.com/zhtut/combine-websocket.git", from: "0.3.0"),
 //    .package(path: "../../combine-websocket"),
     .package(url: "https://github.com/zhtut/common-utils.git", from: "0.1.3"),

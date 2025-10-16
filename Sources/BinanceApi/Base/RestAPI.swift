@@ -102,20 +102,19 @@ public struct RestAPI {
         
         var paramStr = ""
         if let params = params as? [String: Any] {
-            paramStr = params.urlQueryStr ?? ""
+            paramStr = params.urlQueryString
         }
         if needSign {
             var newParams = params as? [String: Any] ?? [String: Any]()
             newParams["timestamp"] = Int(Date().timeIntervalSince1970 * 1000.0)
-            if let queryStr = newParams.urlQueryStr {
-                let sign: String
-                if APIConfig.shared.keyType == .ed25519 {
-                    sign = try APIConfig.shared.createSignature(payload: queryStr)
-                } else {
-                    sign = queryStr.hmacSha256With(key: try APIConfig.shared.requireSecretKey())
-                }
-                paramStr = "\(queryStr)&signature=\(sign)"
+            let queryStr = newParams.urlQueryString
+            let sign: String
+            if APIConfig.shared.keyType == .ed25519 {
+                sign = try APIConfig.shared.createSignature(payload: queryStr)
+            } else {
+                sign = try queryStr.signature
             }
+            paramStr = "\(queryStr)&signature=\(sign)"
         }
         
         if paramStr.count > 0 {
@@ -142,5 +141,30 @@ public struct RestAPI {
             baRes.res.log()
         }
         return baRes
+    }
+}
+
+public extension String {
+    var signature: String {
+        get throws {
+            hmacSha256With(key: try APIConfig.shared.requireSecretKey())
+        }
+    }
+}
+
+public extension Dictionary where Key == String {
+    func addSignature() throws -> [String: Any] {
+        var newParams = [String: Any]()
+        newParams.merge(self, uniquingKeysWith: { _, new in new })
+        newParams["timestamp"] = Int(Date().timeIntervalSince1970 * 1000.0)
+        let queryStr = newParams.urlQueryString
+        let sign: String
+        if APIConfig.shared.keyType == .ed25519 {
+            sign = try APIConfig.shared.createSignature(payload: queryStr)
+        } else {
+            sign = try queryStr.signature
+        }
+        newParams["signature"] = sign
+        return newParams
     }
 }

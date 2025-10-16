@@ -23,6 +23,10 @@ public enum Status: String, Codable, Sendable {
     case NEW_INSURANCE
     /// 自动减仓序列(强平)
     case NEW_ADL
+    /// 刚初始化，还未传到交易所
+    case INITIAL
+    /// 取消中
+    case CANCELING
 }
 
 /// 买卖方向，买入还是卖出

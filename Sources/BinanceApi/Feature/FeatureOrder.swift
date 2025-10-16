@@ -11,31 +11,31 @@ import Foundation
 public struct FeatureOrder: Codable, Sendable {
     
     /// 平均成交价
-    public var avgPrice: String
+    public var avgPrice: String?
     
     /// 用户自定义的订单号
     public var clientOrderId: String
     
     /// 成交金额
-    public var cumQuote: String
+    public var cumQuote: String?
     
     /// 成交量
-    public var executedQty: String
+    public var executedQty: String?
     
     /// 系统订单号
-    public var orderId: Int
+    public var orderId: Int?
     
     /// 原始委托数量
     public var origQty: String
     
     /// 触发前订单类型
-    public var origType: String
+    public var origType: String?
     
     /// 委托价格
     public var price: String
     
     /// 是否仅减仓
-    public var reduceOnly: Bool
+    public var reduceOnly: Bool?
     
     /// 买卖方向
     public var side: Side
@@ -47,7 +47,7 @@ public struct FeatureOrder: Codable, Sendable {
     public var status: Status
     
     /// 触发价，对`TRAILING_STOP_MARKET`无效
-    public var stopPrice: String
+    public var stopPrice: String?
     
     /// 是否条件全平仓
     public var closePosition: Bool?
@@ -62,7 +62,7 @@ public struct FeatureOrder: Codable, Sendable {
     public var timeInForce: String?
     
     /// 订单类型
-    public var type: String
+    public var type: String?
     
     /// 跟踪止损激活价格, 仅`TRAILING_STOP_MARKET` 订单返回此字段
     public var activatePrice: String?
@@ -71,10 +71,10 @@ public struct FeatureOrder: Codable, Sendable {
     public var priceRate: String?
     
     /// 更新时间
-    public var updateTime: Int
+    public var updateTime: Int?
     
     /// 条件价格触发类型
-    public var workingType: String
+    public var workingType: String?
     
     /// 是否开启条件单触发保护
     public var priceProtect: Bool?
@@ -87,6 +87,78 @@ public struct FeatureOrder: Codable, Sendable {
     
     /// 订单TIF为GTD时的自动取消时间
     public var goodTillDate: Int?
+    
+    init(
+        avgPrice: String? = nil,
+        clientOrderId: String,
+        cumQuote: String? = nil,
+        executedQty: String? = nil,
+        orderId: Int? = nil,
+        origQty: String,
+        origType: String? = nil,
+        price: String,
+        reduceOnly: Bool? = nil,
+        side: Side,
+        positionSide: String? = nil,
+        status: Status,
+        stopPrice: String? = nil,
+        closePosition: Bool? = nil,
+        symbol: String,
+        time: Int,
+        timeInForce: String? = nil,
+        type: String? = nil,
+        activatePrice: String? = nil,
+        priceRate: String? = nil,
+        updateTime: Int? = nil,
+        workingType: String? = nil,
+        priceProtect: Bool? = nil,
+        priceMatch: String? = nil,
+        selfTradePreventionMode: String? = nil,
+        goodTillDate: Int? = nil
+    ) {
+        self.avgPrice = avgPrice
+        self.clientOrderId = clientOrderId
+        self.cumQuote = cumQuote
+        self.executedQty = executedQty
+        self.orderId = orderId
+        self.origQty = origQty
+        self.origType = origType
+        self.price = price
+        self.reduceOnly = reduceOnly
+        self.side = side
+        self.positionSide = positionSide
+        self.status = status
+        self.stopPrice = stopPrice
+        self.closePosition = closePosition
+        self.symbol = symbol
+        self.time = time
+        self.timeInForce = timeInForce
+        self.type = type
+        self.activatePrice = activatePrice
+        self.priceRate = priceRate
+        self.updateTime = updateTime
+        self.workingType = workingType
+        self.priceProtect = priceProtect
+        self.priceMatch = priceMatch
+        self.selfTradePreventionMode = selfTradePreventionMode
+        self.goodTillDate = goodTillDate
+    }
+    
+    public init(
+        symbol: String,
+        clientOrderId: String,
+        price: String,
+        origQty: String,
+        side: Side,
+    ) {
+        self.symbol = symbol
+        self.clientOrderId = clientOrderId
+        self.price = price
+        self.origQty = origQty
+        self.side = side
+        self.status = .INITIAL
+        self.time = Date.timestamp
+    }
     
     /// 是否还在等待成交中
     public var isWaitingFill: Bool {
@@ -101,6 +173,9 @@ public struct FeatureOrder: Codable, Sendable {
     public func cancel() {
         Task { [self] in
             let path = "DELETE /fapi/v1/order (HMAC SHA256)"
+            guard let orderId else {
+                return
+            }
             let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
             try await RestAPI.post(path: path, params: params)
         }
@@ -109,6 +184,9 @@ public struct FeatureOrder: Codable, Sendable {
     /// 取消订单
     public func cancel() async throws {
         let path = "DELETE /fapi/v1/order (HMAC SHA256)"
+        guard let orderId else {
+            return
+        }
         let params = ["symbol": symbol, "orderId": orderId] as [String : Any]
         try await RestAPI.post(path: path, params: params)
     }

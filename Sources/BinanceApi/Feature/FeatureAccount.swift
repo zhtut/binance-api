@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CommonUtils
 
 /// 账户
 public struct FeatureAccount: Codable, Sendable {
@@ -95,7 +96,10 @@ public struct FeatureAccount: Codable, Sendable {
         
         /// 立马平仓
         public func closePositionNow() async throws {
-            
+            if let q = positionAmt.decimal {
+                let params = FeaturePostOrderManager.orderParamsWith(instId: symbol, isBuy: !isBuy, sz: dabs(q))
+                try await FeaturePostOrderManager.order(params: params)
+            }
         }
     }
     

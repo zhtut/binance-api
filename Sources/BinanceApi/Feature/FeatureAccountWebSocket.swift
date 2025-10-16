@@ -94,8 +94,10 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
                     case "listenKeyExpired":
                         reopen()
                     default:
-                        print("")
+                        logInfo("账户ws收到其他e类型的json：\(json)")
                     }
+                } else {
+                    logInfo("账户ws收到其他json：\(json)")
                 }
             }
         }
@@ -123,6 +125,24 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     public func open() {
         Task { [self] in
             await isolatedOpen()
+        }
+    }
+    
+    public func login() async throws {
+        let params: [String: Any] = [
+            "apiKey": try APIConfig.shared.requireApiKey()
+        ]
+        let signParams = try params.addSignature()
+        let clientId = UUID().uuidString
+        let fullParams: [String: Any] = try [
+            "id": clientId,
+            "method": "session.logon",
+            "params": signParams
+        ]
+        logInfo("准备ws登录：\(fullParams)")
+        let jsonData = try JSONSerialization.data(withJSONObject: fullParams)
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+            try await ws.send(jsonString)
         }
     }
     

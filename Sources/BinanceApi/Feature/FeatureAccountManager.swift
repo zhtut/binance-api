@@ -179,4 +179,11 @@ public class FeatureAccountManager: @unchecked Sendable {
             logInfo("当前无持仓")
         }
     }
+    
+    /// 清除全部仓位
+    public func closeAllPosition() async throws {
+        for p in positions {
+            try await p.closePositionNow()
+        }
+    }
 }

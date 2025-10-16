@@ -24,7 +24,7 @@ public class FeatureOrderManager: @unchecked Sendable {
     public func updateWith(_ report: FeatureTradeOrderUpdate) {
         // 已经处理了后一条数据，这条是旧数据，直接抛弃
         if let or = orders.first(where: { $0.clientOrderId == report.o.c }) {
-            if or.updateTime > report.E {
+            if or.updateTime ?? 0 > report.E {
                 return
             }
         }

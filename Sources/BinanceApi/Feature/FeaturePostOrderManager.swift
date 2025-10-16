@@ -147,6 +147,16 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     public static func batchOrder(batchParams: [[String: Any]], maxCount: Int = 5) async throws -> [(Bool, String?)] {
+        
+        let orders = batchParams.compactMap({
+            FeatureOrder(symbol: $0.stringFor("symbol") ?? "",
+                         clientOrderId: $0.stringFor("newClientOrderId") ?? "",
+                         price: $0.stringFor("price") ?? "",
+                         origQty: $0.stringFor("quantity") ?? "",
+                         side: Side(rawValue: $0.stringFor("side") ?? "") ?? .BUY)
+        })
+        FeatureOrderManager.shared.orders += orders
+        
         if batchParams.count == 0 {
             return [(Bool, String?)]()
         }
@@ -169,24 +179,34 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         let path = "POST /fapi/v1/batchOrders (HMAC SHA256)"
         let params = ["batchOrders": batchParams]
         let response = try await RestAPI.send(path: path, params: params)
+        
+        var removeOrderIds = [String]()
+        
+        var result = [(Bool, String?)]()
         if response.succeed,
            let data = response.data as? [[String: Any]] {
             var result = [(Bool, String?)]()
-            for (_, dic) in data.enumerated() {
+            for (index, dic) in data.enumerated() {
                 if dic.stringFor("code") != nil {
                     result.append((false, dic.stringFor("msg")))
+                    let cid = batchParams[index].stringFor("newClientOrderId") ?? ""
+                    removeOrderIds.append(cid)
                 } else {
                     result.append((true, nil))
                 }
             }
-            return result
         } else {
-            var result = [(Bool, String?)]()
-            for _ in batchParams {
+            for p in batchParams {
                 result.append((false, response.msg))
+                let cid = p.stringFor("newClientOrderId") ?? ""
+                removeOrderIds.append(cid)
             }
-            return result
         }
+        
+        // 移除失败的订单
+        FeatureOrderManager.shared.orders.removeAll(where: { removeOrderIds.contains($0.clientOrderId) })
+        
+        return result
     }
     
     @discardableResult
@@ -196,7 +216,19 @@ public class FeaturePostOrderManager: @unchecked Sendable {
            let sz = params["quantity"] {
             print("准备下单，side: \(side), 数量：\(sz)")
         }
+        // 未下单先添加
+        let order =
+        FeatureOrder(symbol: params.stringFor("symbol") ?? "",
+                     clientOrderId: params.stringFor("newClientOrderId") ?? "",
+                     price: params.stringFor("price") ?? "",
+                     origQty: params.stringFor("quantity") ?? "",
+                     side: Side(rawValue: params.stringFor("side") ?? "") ?? .BUY)
+        FeatureOrderManager.shared.orders.append(order)
         let response = try await RestAPI.send(path: path, params: params)
+        if !response.succeed {
+            // 失败时移除
+            FeatureOrderManager.shared.orders.removeAll(where: { $0.clientOrderId == params.stringFor("newClientOrderId") })
+        }
         return (response.succeed, response.msg)
     }
     
