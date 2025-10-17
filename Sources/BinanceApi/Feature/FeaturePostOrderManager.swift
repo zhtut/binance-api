@@ -28,7 +28,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     public var symbol: Symbol
     
     /// 倍率
-    public var lever: Int = 3
+    public var lever: Int = 10
     
     public var getCurrentPrice: (() -> Decimal?)?
     
