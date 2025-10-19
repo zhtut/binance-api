@@ -8,6 +8,7 @@ import Foundation
 import CombineWebSocket
 import CombineX
 import LoggingKit
+import NIOLockedValue
 
 /// 现货的盘口
 public class OrderBookWebSocket: @unchecked Sendable {
@@ -22,6 +23,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
     
     var subscriptions = Set<AnyCancellable>()
     
+    @NIOLocked
     var lastUpdateTime: Date?
     
     nonisolated(unsafe) var checkTimer: Timer?
@@ -43,7 +45,7 @@ public class OrderBookWebSocket: @unchecked Sendable {
         ws.onDataPublisher
             .sink { [weak self] data in
                 guard let self else { return }
-                Task { [self] in
+                Task {
                     try processData(data)
                 }
             }.store(in: &subscriptions)

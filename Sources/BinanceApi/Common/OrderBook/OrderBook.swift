@@ -8,6 +8,7 @@
 import Foundation
 import LoggingKit
 import CombineX
+import NIOLockedValue
 
 /// 盘口价格
 public struct OrderBookPrice : Sendable{
@@ -42,11 +43,16 @@ public class OrderBook: @unchecked Sendable {
     
     public let symbol: Symbol
     
+    @NIOLocked
     public var bids = [OrderBookPrice]()
+    
+    @NIOLocked
     public var asks = [OrderBookPrice]()
     
+    @NIOLocked
     public var lastUpdateId: Int = 0
     
+    @NIOLocked
     public var isRefreshing = false
     
     /// 是否数据正常
@@ -82,9 +88,9 @@ public class OrderBook: @unchecked Sendable {
     }
     
     /// 刷新订单簿
-    public nonisolated func refreshOrderBook() {
-        Task { [self] in
-            logInfo("开始刷新orderBook")
+    public func refreshOrderBook() {
+        Task {
+            logInfo("开始接口刷新orderBook")
             let path = symbol.kLinePath
             let params = ["symbol": symbol.symbol, "limit": 10] as [String: Any]
             do {
@@ -93,14 +99,14 @@ public class OrderBook: @unchecked Sendable {
                     if let a = message["asks"] as? [[String]],
                        let b = message["bids"] as? [[String]] {
                         let lastUpdateId = message.intFor("lastUpdateId") ?? 0
-                        Task { [self] in
+                        Task {
                             updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
                         }
-                        logInfo("刷新orderBook成功")
+                        logInfo("接口刷新orderBook成功")
                     }
                 }
             } catch {
-                logError("刷新orderBook失败：\(error)")
+                logError("接口刷新orderBook失败：\(error)")
             }
         }
     }
@@ -147,6 +153,22 @@ public class OrderBook: @unchecked Sendable {
         updateBids(b: b, cover: cover)
         self.lastUpdateId = lastUpdateId
 //        logOrderBook()
+        
+        if !cover {
+            let buy = b.filter({ $0[1] == "1.498" })
+            let sell = a.filter({ $0[1] == "1.498" })
+            
+            if !buy.isEmpty || !sell.isEmpty {
+                var log = "观察大佬：中间价格：\(centerPrice ?? 0.0)"
+                if !buy.isEmpty {
+                    log += " 买入订单：\(buy)"
+                }
+                if !sell.isEmpty {
+                    log += " 卖出订单：\(sell)"
+                }
+                print(log)
+            }
+        }
     }
     
     private func updateAsks(a: [[String]], cover: Bool = false) {
