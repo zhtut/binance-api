@@ -38,7 +38,7 @@ public extension FeatureAccountWebSocket {
         ]
         let signParams = try params.addSignature()
         let clientId = UUID().uuidString
-        let fullParams: [String: Any] = try [
+        let fullParams: [String: Any] = [
             "id": clientId,
             "method": "order.place",
             "params": signParams

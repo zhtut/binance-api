@@ -134,7 +134,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
         ]
         let signParams = try params.addSignature()
         let clientId = UUID().uuidString
-        let fullParams: [String: Any] = try [
+        let fullParams: [String: Any] = [
             "id": clientId,
             "method": "session.logon",
             "params": signParams
