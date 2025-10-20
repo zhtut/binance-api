@@ -185,7 +185,6 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         var result = [(Bool, String?)]()
         if response.succeed,
            let data = response.data as? [[String: Any]] {
-            var result = [(Bool, String?)]()
             for (index, dic) in data.enumerated() {
                 if dic.stringFor("code") != nil {
                     result.append((false, dic.stringFor("msg")))
