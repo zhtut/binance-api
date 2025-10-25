@@ -53,6 +53,14 @@ public class FeatureAccountManager: @unchecked Sendable {
         return 0.0
     }
     
+    /// usdc的余额
+    public var usdcBal: Decimal {
+        if let usdt = assets.first(where: { $0.asset == "USDC" }) {
+            return usdt.asset.defaultDecimal()
+        }
+        return 0.0
+    }
+    
     /// 当前所有持仓
     @NIOLocked
     public var positions = [FeatureAccount.Position]()
