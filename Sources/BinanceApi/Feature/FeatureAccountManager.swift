@@ -56,7 +56,7 @@ public class FeatureAccountManager: @unchecked Sendable {
     /// usdc的余额
     public var usdcBal: Decimal {
         if let usdt = assets.first(where: { $0.asset == "USDC" }) {
-            return usdt.asset.defaultDecimal()
+            return usdt.walletBalance.defaultDecimal()
         }
         return 0.0
     }
