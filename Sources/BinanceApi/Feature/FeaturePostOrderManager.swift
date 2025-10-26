@@ -96,6 +96,26 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         return 0
     }
     
+    /// 可开张数
+    public func canBuySz() ->  Decimal {
+        let busd = FeatureAccountManager.shared.usdcAvailable
+        if let currPx = currentPrice() {
+            let total = busd * lever.decimal / currPx
+            return total - positionSz()
+        }
+        return 0
+    }
+    
+    /// 可开张数
+    public func canSellSz() ->  Decimal {
+        let busd = FeatureAccountManager.shared.usdcAvailable
+        if let currPx = currentPrice() {
+            let total = busd * lever.decimal / currPx
+            return total + positionSz()
+        }
+        return 0
+    }
+    
     /// 最多可开多少数量
     public func maxSz() -> Decimal {
         let busd = FeatureAccountManager.shared.usdcBal
