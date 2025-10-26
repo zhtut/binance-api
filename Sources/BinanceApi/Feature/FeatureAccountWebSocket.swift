@@ -40,7 +40,9 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
         refresh()
         
         // 启动定时器
-        startTimer()
+        Task.detached {
+            self.startTimer()
+        }
     }
     
     func addObserver() {

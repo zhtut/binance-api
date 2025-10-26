@@ -74,7 +74,9 @@ public class OrderBook: @unchecked Sendable {
     public init(symbol: Symbol) {
         self.symbol = symbol
         refreshOrderBook()
-        startTimer()
+        Task.detached {
+            self.startTimer()
+        }
     }
     
     func startTimer() {

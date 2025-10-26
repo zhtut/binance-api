@@ -35,7 +35,9 @@ public class BookTikerWebSocket: @unchecked Sendable {
         self.symbol = symbol
         
         setupWebSocket()
-        startTimer()
+        Task.detached {
+            self.startTimer()
+        }
     }
     
     func setupWebSocket() {

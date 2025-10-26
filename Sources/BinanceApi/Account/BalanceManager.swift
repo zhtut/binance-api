@@ -27,7 +27,9 @@ public class BalanceManager: @unchecked Sendable {
     public var checkTimer: Timer?
     
     public init() {
-        self.startTimer()
+        Task.detached {
+            self.startTimer()
+        }
     }
     
     func startTimer() {

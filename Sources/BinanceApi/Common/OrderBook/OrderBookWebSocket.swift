@@ -32,7 +32,9 @@ public class OrderBookWebSocket: @unchecked Sendable {
         self.symbol = symbol
         self.orderBook = OrderBook(symbol: symbol)
         setupWebSocket()
-        startTimer()
+        Task.detached {
+            self.startTimer()
+        }
     }
     
     func setupWebSocket() {
