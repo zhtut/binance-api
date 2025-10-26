@@ -53,9 +53,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     
     /// 冻结在订单中的合约张数
     public func orderPosSz() -> Decimal {
-        logInfo("获取orderPosSz")
         let orders = FeatureOrderManager.shared.orders
-        logInfo("orders: \(orders)")
         let filters = orders.filter({ $0.symbol == symbol.symbol })
         if filters.count > 0 {
             var count = Decimal(0.0)
@@ -71,9 +69,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     
     /// 持仓总数量，买入大于0，卖出小于0
     public func positionSz() -> Decimal {
-        logInfo("获取positionSz")
         let positions = FeatureAccountManager.shared.positions
-        logInfo("positions数量：\(positions.count)")
         let filters = positions.filter({ $0.symbol == symbol.symbol })
         var count: Decimal = 0.0
         for po in filters {
@@ -86,9 +82,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     
     /// 可开张数
     public func canOpenSz() ->  Decimal {
-        logInfo("获取canOpenSz")
         let busd = FeatureAccountManager.shared.usdcAvailable
-        logInfo("busd：\(busd)")
         if let currPx = currentPrice() {
             let total = busd * lever.decimal / currPx
             return total
