@@ -45,7 +45,7 @@ public class SpotAccountWebSocket: @unchecked Sendable {
         Task { [self] in
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    if let e = json.stringFor("e") {
+                    if let e = json.string(for: "e") {
                         switch e {
                         case OutboundAccountPosition.key:
                             let position = try JSONDecoder().decode(OutboundAccountPosition.self, from: data)
@@ -111,7 +111,7 @@ public class SpotAccountWebSocket: @unchecked Sendable {
         let res = try await RestAPI.post(path: path)
         if let json = await res.res.bodyJson(),
            let dict = json as? [String: Any],
-           let listenKey = dict.stringFor("listenKey") {
+           let listenKey = dict.string(for: "listenKey") {
             return listenKey
         }
         throw CommonError(message: "解析body错误")

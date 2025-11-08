@@ -100,7 +100,7 @@ public class OrderBook: @unchecked Sendable {
                 if let message = response.data as? [String: Any] {
                     if let a = message["asks"] as? [[String]],
                        let b = message["bids"] as? [[String]] {
-                        let lastUpdateId = message.intFor("lastUpdateId") ?? 0
+                        let lastUpdateId = message.int(for: "lastUpdateId") ?? 0
                         Task {
                             updateOrderBookData(a: a, b: b, lastUpdateId: lastUpdateId, cover: true)
                         }
@@ -115,7 +115,7 @@ public class OrderBook: @unchecked Sendable {
     
     /// 更新订单簿消息
     public func update(message: [String: Any]) -> Bool {
-        guard let u = message.intFor("u") else {
+        guard let u = message.int(for: "u") else {
             return false
         }
         

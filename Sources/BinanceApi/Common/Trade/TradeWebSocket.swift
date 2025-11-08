@@ -49,7 +49,7 @@ public class TradeWebSocket: @unchecked Sendable {
     public func processData(_ data: Data) {
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                if let e = json.stringFor("e") {
+                if let e = json.string(for: "e") {
                     if e == "aggTrade" {
                         let trade = try JSONDecoder().decode(Trade.self, from: data)
                         didReceiveAggTrade(trade)

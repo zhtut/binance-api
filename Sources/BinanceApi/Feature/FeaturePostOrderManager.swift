@@ -173,11 +173,11 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     public static func batchOrder(batchParams: [[String: Any]], maxCount: Int = 5) async throws -> [(Bool, String?)] {
         
         let orders = batchParams.compactMap({
-            FeatureOrder(symbol: $0.stringFor("symbol") ?? "",
-                         clientOrderId: $0.stringFor("newClientOrderId") ?? "",
-                         price: $0.stringFor("price") ?? "",
-                         origQty: $0.stringFor("quantity") ?? "",
-                         side: Side(rawValue: $0.stringFor("side") ?? "") ?? .BUY)
+            FeatureOrder(symbol: $0.string(for: "symbol") ?? "",
+                         clientOrderId: $0.string(for: "newClientOrderId") ?? "",
+                         price: $0.string(for: "price") ?? "",
+                         origQty: $0.string(for: "quantity") ?? "",
+                         side: Side(rawValue: $0.string(for: "side") ?? "") ?? .BUY)
         })
         FeatureOrderManager.shared.orders += orders
         
@@ -210,9 +210,9 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         if response.succeed,
            let data = response.data as? [[String: Any]] {
             for (index, dic) in data.enumerated() {
-                if dic.stringFor("code") != nil {
-                    result.append((false, dic.stringFor("msg")))
-                    let cid = batchParams[index].stringFor("newClientOrderId") ?? ""
+                if dic.string(for: "code") != nil {
+                    result.append((false, dic.string(for: "msg")))
+                    let cid = batchParams[index].string(for: "newClientOrderId") ?? ""
                     removeOrderIds.append(cid)
                 } else {
                     result.append((true, nil))
@@ -221,7 +221,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         } else {
             for p in batchParams {
                 result.append((false, response.msg))
-                let cid = p.stringFor("newClientOrderId") ?? ""
+                let cid = p.string(for: "newClientOrderId") ?? ""
                 removeOrderIds.append(cid)
             }
         }
@@ -241,16 +241,16 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         }
         // 未下单先添加
         let order =
-        FeatureOrder(symbol: params.stringFor("symbol") ?? "",
-                     clientOrderId: params.stringFor("newClientOrderId") ?? "",
-                     price: params.stringFor("price") ?? "",
-                     origQty: params.stringFor("quantity") ?? "",
-                     side: Side(rawValue: params.stringFor("side") ?? "") ?? .BUY)
+        FeatureOrder(symbol: params.string(for: "symbol") ?? "",
+                     clientOrderId: params.string(for: "newClientOrderId") ?? "",
+                     price: params.string(for: "price") ?? "",
+                     origQty: params.string(for: "quantity") ?? "",
+                     side: Side(rawValue: params.string(for: "side") ?? "") ?? .BUY)
         FeatureOrderManager.shared.orders.append(order)
         let response = try await RestAPI.send(path: path, params: params)
         if !response.succeed {
             // 失败时移除
-            FeatureOrderManager.shared.orders.removeAll(where: { $0.clientOrderId == params.stringFor("newClientOrderId") })
+            FeatureOrderManager.shared.orders.removeAll(where: { $0.clientOrderId == params.string(for: "newClientOrderId") })
         }
         return (response.succeed, response.msg)
     }

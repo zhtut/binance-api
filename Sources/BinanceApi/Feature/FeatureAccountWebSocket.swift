@@ -84,7 +84,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
     public nonisolated func processData(_ data: Data) {
         Task { [self] in
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                if let e = json.stringFor("e") {
+                if let e = json.string(for: "e") {
 //                    logInfo("收到账户消息更新：\(json)")
                     switch e {
                     case FeatureAccountUpdate.key:
@@ -167,7 +167,7 @@ public class FeatureAccountWebSocket: @unchecked Sendable {
         let res = try await RestAPI.post(path: path)
         if let json = res.res.bodyJson,
            let dict = json as? [String: Any],
-           let listenKey = dict.stringFor("listenKey") {
+           let listenKey = dict.string(for: "listenKey") {
             logInfo("请求到listenKey：\(listenKey)")
             return listenKey
         }

@@ -54,52 +54,55 @@ public struct Symbol: Sendable {
     
     /// 价格下限, 最小价格
     public var minPrice: String? {
-        if let dic = filters?.first(where: { $0.stringFor("filterType") == "PRICE_FILTER" }) {
-            return dic.stringFor("minPrice")
+        if let dic = filters?.first(where: {
+            let v = $0.string(for: "filterType")
+            return v == "PRICE_FILTER"
+        }) {
+            return dic.string(for: "minPrice")
         }
         return nil
     }
     
     /// 订单最小价格间隔
     public var tickSize: String? {
-        if let dic = filters?.first(where: { $0.stringFor("filterType") == "PRICE_FILTER" }) {
-            return dic.stringFor("tickSize")
+        if let dic = filters?.first(where: { $0.string(for: "filterType") == "PRICE_FILTER" }) {
+            return dic.string(for: "tickSize")
         }
         return nil
     }
     
     /// 下单数量允许的最小值.
     public var minQty: String? {
-        if let dic = filters?.first(where: { $0.stringFor("filterType") == "LOT_SIZE" }) {
-            return dic.stringFor("minQty")
+        if let dic = filters?.first(where: { $0.string(for: "filterType") == "LOT_SIZE" }) {
+            return dic.string(for: "minQty")
         }
         return nil
     }
     
     /// 下单数量允许的步进值。
     public var stepSize: String? {
-        if let dic = filters?.first(where: { $0.stringFor("filterType") == "LOT_SIZE" }) {
-            return dic.stringFor("stepSize")
+        if let dic = filters?.first(where: { $0.string(for: "filterType") == "LOT_SIZE" }) {
+            return dic.string(for: "stepSize")
         }
         return nil
     }
     
     public init(dic: [String: Any], symbolType: SymbolType) {
         self.type = symbolType
-        symbol = dic.stringFor("symbol") ?? ""
-        status = dic.stringFor("status")
-        baseAsset = dic.stringFor("baseAsset")
-        baseAssetPrecision = dic.intFor("baseAssetPrecision")
-        quoteAsset = dic.stringFor("quoteAsset")
-        quotePrecision = dic.intFor("quotePrecision")
-        quoteAssetPrecision = dic.intFor("quoteAssetPrecision")
-        orderTypes = dic.arrayFor("orderTypes") as? [String]
-        icebergAllowed = dic.boolFor("icebergAllowed")
-        ocoAllowed = dic.boolFor("ocoAllowed")
-        isSpotTradingAllowed = dic.boolFor("isSpotTradingAllowed")
-        isMarginTradingAllowed = dic.boolFor("isMarginTradingAllowed")
+        symbol = dic.string(for: "symbol") ?? ""
+        status = dic.string(for: "status")
+        baseAsset = dic.string(for: "baseAsset")
+        baseAssetPrecision = dic.int(for: "baseAssetPrecision")
+        quoteAsset = dic.string(for: "quoteAsset")
+        quotePrecision = dic.int(for: "quotePrecision")
+        quoteAssetPrecision = dic.int(for: "quoteAssetPrecision")
+        orderTypes = dic.array(for: "orderTypes") as? [String]
+        icebergAllowed = dic.bool(for: "icebergAllowed")
+        ocoAllowed = dic.bool(for: "ocoAllowed")
+        isSpotTradingAllowed = dic.bool(for: "isSpotTradingAllowed")
+        isMarginTradingAllowed = dic.bool(for: "isMarginTradingAllowed")
         filters = dic["filters"] as? [[String: Sendable]]
-        permissions = dic.arrayFor("permissions") as? [String]
+        permissions = dic.array(for: "permissions") as? [String]
     }
 }
 

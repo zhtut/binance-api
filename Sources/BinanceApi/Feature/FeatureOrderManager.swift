@@ -100,8 +100,8 @@ public class FeatureOrderManager: @unchecked Sendable {
         if response.succeed,
            let data = response.data as? [[String: Any]] {
             for (index, dic) in data.enumerated() {
-                if dic.stringFor("code") != nil {
-                    let msg = dic.stringFor("msg")
+                if dic.string(for: "code") != nil {
+                    let msg = dic.string(for: "msg")
                     result.append((false, msg))
                     let clientId = orderIdList[index]
                     logInfo("\(clientId)订单取消失败：\(msg ?? "")")
