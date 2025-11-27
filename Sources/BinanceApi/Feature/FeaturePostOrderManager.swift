@@ -95,7 +95,12 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         let busd = FeatureAccountManager.shared.usdcAvailable
         if let currPx = currentPrice() {
             let total = busd * lever.decimal / currPx
-            return total - positionSz()
+            let pos = positionSz()
+            if pos < 0 {
+                return total - 2 * positionSz() // 有卖出时，要乘以2的持仓方向
+            } else {
+                return total
+            }
         }
         return 0
     }
@@ -105,7 +110,12 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         let busd = FeatureAccountManager.shared.usdcAvailable
         if let currPx = currentPrice() {
             let total = busd * lever.decimal / currPx
-            return total + positionSz()
+            let pos = positionSz()
+            if pos > 0 {
+                return total + 2 * positionSz()
+            } else {
+                return total
+            }
         }
         return 0
     }
