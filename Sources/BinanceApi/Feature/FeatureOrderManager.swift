@@ -37,7 +37,7 @@ public class FeatureOrderManager: @unchecked Sendable {
             orders.append(changedOrder)
         }
         
-        logInfo("收到订单变化\(report.o.c): \(report.o.X)，当前订单数量：\(orders.count)")
+        logInfo("收到订单变化\(report.o.c): \(report.o.X), \(report.o.p)，当前订单数量：\(orders.count)")
         
         orderPublisher.send(changedOrder)
     }
