@@ -80,6 +80,16 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         return count
     }
     
+    /// 最大持有数量
+    public func totalPosSz() ->  Decimal {
+        let busd = FeatureAccountManager.shared.usdcBal
+        if let currPx = currentPrice() {
+            let total = busd * lever.decimal / currPx
+            return total
+        }
+        return 0
+    }
+    
     /// 可开张数
     public func canOpenSz() ->  Decimal {
         let busd = FeatureAccountManager.shared.usdcAvailable
@@ -247,7 +257,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         let path = "POST /fapi/v1/order (HMAC SHA256)"
         if let side = params["side"],
            let sz = params["quantity"] {
-            print("准备下单，side: \(side), 数量：\(sz)")
+            logInfo("准备下单，side: \(side), 数量：\(sz)")
         }
         // 未下单先添加
         let order =
