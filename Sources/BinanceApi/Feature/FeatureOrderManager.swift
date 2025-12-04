@@ -80,6 +80,19 @@ public class FeatureOrderManager: @unchecked Sendable {
         }
     }
     
+    /// 查询历史成交订单
+    public static func queryHistoryOrders(symbol: String, orderId: String? = nil, limit: Int = 20) async throws -> [FeatureOrder] {
+        let path = "/fapi/v1/allOrders (HMAC SHA256)"
+        let res = try await RestAPI.post(path: path, params: ["symbol": symbol])
+        if res.succeed, let models = res.data as? [FeatureOrder] {
+            logInfo("取消所有订单成功")
+            return models
+        } else {
+            logInfo("取消所有订单失败：\(res.msg ?? "")")
+            throw CommonError(message: res.msg ?? "")
+        }
+    }
+    
     /// 取消订单，少于10个
     private static func batchCancel(orders: [FeatureOrder], symbol: String) async throws -> [(Bool, String?)]  {
         if orders.count == 0 {
