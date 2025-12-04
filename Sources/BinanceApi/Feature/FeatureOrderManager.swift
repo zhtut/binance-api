@@ -94,6 +94,8 @@ public class FeatureOrderManager: @unchecked Sendable {
             logInfo("没有订单需要取消，退出")
             return []
         }
+        // 删除准备取消的订单
+        shared.orders.removeAll(where: { orderIdList.contains($0.clientOrderId) })
         let params = ["symbol": symbol, "origClientOrderIdList": orderIdList] as [String : Any]
         let response = try await RestAPI.send(path: path, params: params)
         var result = [(Bool, String?)]()
