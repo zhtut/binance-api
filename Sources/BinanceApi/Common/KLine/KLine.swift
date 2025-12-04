@@ -151,7 +151,7 @@ public struct KLine {
     }
     
     /// 涨跌幅，百分比
-    public var pricePercent: CGFloat {
+    public var pricePercent: Double {
         guard let open = openPrice.double, let close = closePrice.double else {
             return 0
         }

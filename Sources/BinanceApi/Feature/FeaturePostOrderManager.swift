@@ -80,16 +80,6 @@ public class FeaturePostOrderManager: @unchecked Sendable {
         return count
     }
     
-    /// 最大持有数量
-    public func totalPosSz() ->  Decimal {
-        let busd = FeatureAccountManager.shared.usdcBal
-        if let currPx = currentPrice() {
-            let total = busd * lever.decimal / currPx
-            return total
-        }
-        return 0
-    }
-    
     /// 可开张数
     public func canOpenSz() ->  Decimal {
         let busd = FeatureAccountManager.shared.usdcAvailable
@@ -132,12 +122,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     
     /// 最多可开多少数量
     public func maxSz() -> Decimal {
-        let busd = FeatureAccountManager.shared.usdcBal
-        if let currPx = currentPrice() {
-            let total = busd * lever.decimal / currPx
-            return total
-        }
-        return 0
+        return canOpenSz() + dabs(positionSz())
     }
     
     /// 最低可开多少数量
