@@ -138,13 +138,13 @@ public class FeatureAccountManager: @unchecked Sendable {
             }
         }
         
-        // 移除没有数量的
-        positions.removeAll(where: { $0.positionAmt.defaultDouble() ==  0 })
-        
         log()
         
         updatePositionTime = update.E
         accountPublisher.send()
+        
+        // 移除没有数量的
+        clearZeroPositions()
         
         isReady = true
     }
@@ -173,8 +173,15 @@ public class FeatureAccountManager: @unchecked Sendable {
         account = acc
         assets = acc.assets
         positions = acc.positions ?? []
+        clearZeroPositions()
         log(isRefresh: true)
         isReady = true
+    }
+    
+    func clearZeroPositions() {
+        
+        // 移除没有数量的
+        positions.removeAll(where: { $0.positionAmt.defaultDouble() == 0 })
     }
     
     public func log(isRefresh: Bool = false) {
