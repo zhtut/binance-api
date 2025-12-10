@@ -29,6 +29,10 @@ public class FeatureAccountManager: @unchecked Sendable {
     /// 当前所有资产
     @NIOLocked
     public var assets = [FeatureAccount.Asset]()
+    
+    /// 是否准备好
+    @NIOLocked
+    public var isReady: Bool = false
 
     /// usdt的余额
     public var usdtAvailable: Decimal {
@@ -141,6 +145,8 @@ public class FeatureAccountManager: @unchecked Sendable {
         
         updatePositionTime = update.E
         accountPublisher.send()
+        
+        isReady = true
     }
     
     //    public func updateWith(_ balance: BalanceUpdate) {
@@ -168,6 +174,7 @@ public class FeatureAccountManager: @unchecked Sendable {
         assets = acc.assets
         positions = acc.positions ?? []
         log(isRefresh: true)
+        isReady = true
     }
     
     public func log(isRefresh: Bool = false) {
