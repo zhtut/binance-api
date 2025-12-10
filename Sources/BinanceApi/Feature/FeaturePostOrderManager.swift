@@ -238,8 +238,11 @@ public class FeaturePostOrderManager: @unchecked Sendable {
     }
     
     @discardableResult
-    public static func order(params: [String: Any]) async throws -> (succ: Bool, errMsg: String?) {
-        let path = "POST /fapi/v1/order (HMAC SHA256)"
+    public static func postOrder(params: [String: Any],
+                                 path: String = "POST /fapi/v1/order (HMAC SHA256)") async throws -> (
+        succ: Bool,
+        errMsg: String?
+    ) {
         if let side = params["side"],
            let sz = params["quantity"] {
             logInfo("准备下单，side: \(side), 数量：\(sz)")
@@ -272,7 +275,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
                     let closeParams = orderParamsWith(instId: symbol,
                                                       isBuy: !isBuy,
                                                       sz: sz)
-                    return try await order(params: closeParams)
+                    return try await postOrder(params: closeParams)
                 }
             }
         }
@@ -294,7 +297,7 @@ public class FeaturePostOrderManager: @unchecked Sendable {
                         let closeParams = orderParamsWith(instId: symbol,
                                                           isBuy: !isBuy,
                                                           sz: sz)
-                        try await order(params: closeParams)
+                        try await postOrder(params: closeParams)
                     }
                 }
             }

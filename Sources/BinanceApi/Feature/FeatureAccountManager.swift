@@ -9,6 +9,7 @@ import Foundation
 import LoggingKit
 import NIOLockedValue
 import CombineX
+import CommonUtils
 
 /// 账户信息
 public class FeatureAccountManager: @unchecked Sendable {
@@ -132,6 +133,9 @@ public class FeatureAccountManager: @unchecked Sendable {
                 positions.removeAll(where: { $0.symbol ==  position.s })
             }
         }
+        
+        // 移除没有数量的
+        positions.removeAll(where: { $0.positionAmt.defaultDouble() ==  0 })
         
         log()
         

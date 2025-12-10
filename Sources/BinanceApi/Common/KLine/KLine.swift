@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CommonUtils
 
 /// seconds -> 秒    1s
 /// minutes -> 分钟    1m， 3m， 5m， 15m， 30m
@@ -156,5 +157,15 @@ public struct KLine {
             return 0
         }
         return ((close - open) / open) * 100.0
+    }
+    
+    /// 开盘和收盘的低点
+    public var low: Decimal {
+        min(openPrice.defaultDecimal(), closePrice.defaultDecimal())
+    }
+    
+    /// 开盘和收盘的高点
+    public var high: Decimal {
+        max(openPrice.defaultDecimal(), closePrice.defaultDecimal())
     }
 }

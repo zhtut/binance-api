@@ -98,7 +98,7 @@ public struct FeatureAccount: Codable, Sendable {
         public func closePositionNow() async throws {
             if let q = positionAmt.decimal {
                 let params = FeaturePostOrderManager.orderParamsWith(instId: symbol, isBuy: !isBuy, sz: dabs(q))
-                try await FeaturePostOrderManager.order(params: params)
+                try await FeaturePostOrderManager.postOrder(params: params)
             }
         }
     }
