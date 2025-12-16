@@ -171,7 +171,7 @@ public struct FeatureOrder: Codable, Sendable {
     
     /// 取消订单
     public func cancel() {
-        Task { [self] in
+        Task {
             let path = "DELETE /fapi/v1/order (HMAC SHA256)"
             guard let orderId else {
                 return

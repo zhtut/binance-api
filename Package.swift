@@ -15,7 +15,7 @@ pDependencies += [
 //    .package(path: "../../combine-websocket"),
     .package(url: "https://github.com/zhtut/common-utils.git", from: "0.1.3"),
 //    .package(path: "../../common-utils"),
-    .package(url: "https://github.com/zhtut/default-codable.git", from: "1.0.3"),
+    .package(url: "https://github.com/zhtut/default-codable.git", from: "1.0.4"),
 //    .package(path: "../../default-codable"),
     .package(url: "https://github.com/zhtut/logging-kit.git", from: "0.1.5"),
 //    .package(path: "../../logging-kit"),

@@ -11,7 +11,7 @@ import LoggingKit
 import CommonUtils
 import NIOLockedValue
 
-/// 订单管理器
+/// 订单管理器，管理所有订单状态
 public class FeatureOrderManager: @unchecked Sendable {
     
     public static let shared = FeatureOrderManager()
@@ -60,127 +60,16 @@ public class FeatureOrderManager: @unchecked Sendable {
         self.orders = orders
     }
     
-    public static func getOpenOrders() async throws -> [FeatureOrder] {
+    public static func getOpenOrders(symbol: String? = nil) async throws -> [FeatureOrder] {
         let path = "GET /fapi/v1/openOrders (HMAC SHA256)"
+        var params = [String: Any]()
+        if let symbol {
+            params["symbol"] = symbol
+        }
         let res = try await RestAPI.post(path: path, dataClass: [FeatureOrder].self)
         if let arr = res.data as? [FeatureOrder] {
             return arr
         }
         throw CommonError(message: "没有订单")
-    }
-    
-    /// 取消全部订单
-    public static func cancelAllOrders(symbol: String) async throws {
-        let path = "DELETE /fapi/v1/allOpenOrders (HMAC SHA256)"
-        let res = try await RestAPI.post(path: path, params: ["symbol": symbol])
-        if res.succeed {
-            logInfo("取消所有订单成功")
-        } else {
-            logInfo("取消所有订单失败：\(res.msg ?? "")")
-        }
-    }
-    
-    /// 查询历史成交订单
-    public static func queryHistoryOrders(symbol: String, orderId: String? = nil, limit: Int = 20) async throws -> [FeatureOrder] {
-        let path = "/fapi/v1/allOrders (HMAC SHA256)"
-        let res = try await RestAPI.post(path: path, params: ["symbol": symbol])
-        if res.succeed, let models = res.data as? [FeatureOrder] {
-            logInfo("取消所有订单成功")
-            return models
-        } else {
-            logInfo("取消所有订单失败：\(res.msg ?? "")")
-            throw CommonError(message: res.msg ?? "")
-        }
-    }
-    
-    /// 取消订单，少于10个
-    private static func batchCancel(orders: [FeatureOrder], symbol: String) async throws -> [(Bool, String?)]  {
-        if orders.count == 0 {
-            return []
-        }
-        
-        let path = "DELETE /fapi/v1/batchOrders (HMAC SHA256)"
-        let selfOrders = shared.orders
-        let orderIdList = orders.compactMap({ $0.clientOrderId })
-            .filter({ selfOrders.compactMap({ $0.clientOrderId }).contains($0) }) // 过滤掉不包含的订单
-        if orderIdList.isEmpty {
-            logInfo("没有订单需要取消，退出")
-            return []
-        }
-        // 删除准备取消的订单
-        shared.orders.removeAll(where: { orderIdList.contains($0.clientOrderId) })
-        let params = ["symbol": symbol, "origClientOrderIdList": orderIdList] as [String : Any]
-        let response = try await RestAPI.send(path: path, params: params)
-        var result = [(Bool, String?)]()
-        if response.succeed,
-           let data = response.data as? [[String: Any]] {
-            for (index, dic) in data.enumerated() {
-                if dic.string(for: "code") != nil {
-                    let msg = dic.string(for: "msg")
-                    result.append((false, msg))
-                    let clientId = orderIdList[index]
-                    logInfo("\(clientId)订单取消失败：\(msg ?? "")")
-                } else {
-                    result.append((true, nil))
-                }
-            }
-        } else {
-            for _ in orders {
-                result.append((false, response.msg))
-            }
-            logInfo("取消订单失败：参数：\(params)")
-        }
-        return result
-    }
-    
-    /// 取消订单，可以多于10个
-    public static func cancel(orders: [FeatureOrder], batchCount: Int = 10) async throws {
-        var orderInfo = [String: [FeatureOrder]]()
-        for order in orders {
-            var orderArr: [FeatureOrder]
-            if let arr = orderInfo[order.symbol] {
-                orderArr = arr
-            } else {
-                orderArr = [FeatureOrder]()
-            }
-            orderArr.append(order)
-            orderInfo[order.symbol] = orderArr
-        }
-        for (symbol, orders) in orderInfo {
-            try await cancel(orders: orders, symbol: symbol, batchCount: batchCount)
-        }
-    }
-    
-    /// 取消订单，可以多于10个
-    public static func cancel(orders: [FeatureOrder], symbol: String, batchCount: Int = 10) async throws {
-        var remainingOrders = orders
-        while remainingOrders.count > 0 {
-            let topOrders: [FeatureOrder]
-            if remainingOrders.count > batchCount {
-                topOrders = Array(remainingOrders.prefix(batchCount))
-                remainingOrders = remainingOrders.suffix(remainingOrders.count - topOrders.count)
-            } else {
-                // 少于或等于10个了，一次取消
-                topOrders = remainingOrders
-                remainingOrders = []
-            }
-            
-            let result = try await batchCancel(orders: topOrders, symbol: symbol)
-            
-            var succ = 0
-            var errMsg = ""
-            for (_, handler) in result.enumerated() {
-                if handler.0 {
-                    succ += 1
-                } else {
-                    errMsg = "\(errMsg)\(handler.1 ?? "")"
-                }
-            }
-            if succ == orders.count {
-                logInfo("\(succ)个订单都取消成功")
-            } else {
-                logInfo("\(succ)个订单取消成功， \(orders.count - succ)个订单取消失败, \(errMsg)")
-            }
-        }
     }
 }
