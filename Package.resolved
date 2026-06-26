@@ -1,13 +1,13 @@
 {
-  "originHash" : "de9f38295c47578c894a1e5b034cfdc68f6299e39c5e77ccc66abfa9e1b83eb9",
+  "originHash" : "716ced9fe860285e8113fef73298bcbe6e79bb32082d5492af90ba30f27900da",
   "pins" : [
     {
       "identity" : "async-network",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/async-network.git",
       "state" : {
-        "revision" : "afe9927a785ceda9c69ae5e48714ec5b4c4297ae",
-        "version" : "0.4.0"
+        "revision" : "b1c69fce1a4201599f989b9ae830221ecc0eb51f",
+        "version" : "0.4.3"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhtut/default-codable.git",
       "state" : {
-        "revision" : "22a0bb574f15f9e8b188788749dc73dfc884a9c0",
-        "version" : "1.0.3"
+        "revision" : "b6270349f7d7b2a6671766d1d7e24bc14c6ea340",
+        "version" : "1.0.4"
       }
     },
     {
