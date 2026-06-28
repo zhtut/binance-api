@@ -100,7 +100,7 @@ public struct FeatureTradeOrderUpdate: Codable, Sendable {
     
     /// 创建订单
     public var createOrder: FeatureOrder {
-        let order = FeatureOrder(
+        var order = FeatureOrder(
             avgPrice: o.ap,
             clientOrderId: o.c,
             cumQuote: o.b,
@@ -125,7 +125,15 @@ public struct FeatureTradeOrderUpdate: Codable, Sendable {
             priceMatch: o.pm,
             selfTradePreventionMode: o.V
         )
-        
+
+        // 逐笔成交附加信息（用于 PnL 归因：手续费/实现盈亏）
+        order.commission = o.n
+        order.commissionAsset = o.N
+        order.realizedPnl = o.rp
+        order.lastFilledQty = o.l
+        order.lastFilledPrice = o.L
+        order.isMaker = o.m
+
         return order
     }
 }

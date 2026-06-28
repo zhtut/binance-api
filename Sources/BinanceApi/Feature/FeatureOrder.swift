@@ -87,7 +87,21 @@ public struct FeatureOrder: Codable, Sendable {
     
     /// 订单TIF为GTD时的自动取消时间
     public var goodTillDate: Int?
-    
+
+    // MARK: - 逐笔成交附加信息（来自 ORDER_TRADE_UPDATE 推送，REST 接口不返回）
+    /// 本次成交手续费数量
+    public var commission: String? = nil
+    /// 手续费资产（如 USDC / BNB）
+    public var commissionAsset: String? = nil
+    /// 本次成交实现盈亏（rp）
+    public var realizedPnl: String? = nil
+    /// 末次成交量
+    public var lastFilledQty: String? = nil
+    /// 末次成交价
+    public var lastFilledPrice: String? = nil
+    /// 是否为挂单方成交（maker）
+    public var isMaker: Bool? = nil
+
     init(
         avgPrice: String? = nil,
         clientOrderId: String,
